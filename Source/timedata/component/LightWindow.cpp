@@ -1,22 +1,46 @@
-#include "timedata/color/FColorList.h"
-#include "timedata/component/LightingWindow.h"
-#include "timedata/util/TimedataApplication.h"
-#include "timedata/util/RunOnMessageThread.h"
+#include <timedata/util/RunOnMessageThread.h>
+#include <timedata/base/doubleBuffer.h>
 
 namespace timedata {
 
-struct LightWindow::Impl : DocumentWindow {
 
-    Impl() : DocumentWindow("timedata lighting simulator",
-                            Colours::lightgrey,
-                            DocumentWindow::allButtons),
-             instrumentGrid_(new timedata::InstrumentGrid) {
-        setContentOwned(instrumentGrid_, true);
-        centreWithSize(getWidth(), getHeight());
+template <typename Color>
+inline Colour toColour(Color c) {
+    return {c[0], c[1], c[2]};
+}
+
+struct LightWindow::Impl : DocumentWindow {
+    using ColourList = std::vector<Colour>;
+    using ColourBuffer = DoubleBuffer<ColourList>;
+    using Desc = LightWindow::Desc;
+
+    Desc desc;
+    ColorBuffer colorBuffer;
+
+    Impl(Desc d) : DocumentWindow("timedata lighting simulator",
+                                  Colours::lightgrey,
+                                  DocumentWindow::allButtons) {
+        setDesc(d);
+        // setContentOwned(instrumentGrid_, true);
+        // centreWithSize(getWidth(), getHeight());
         setUsingNativeTitleBar(true);
+        toFront(true);
+        setVisible(true);
     }
 
     ~Impl() {}
+
+    void paint(Graphics& g) {
+        auto& colors = colorBuffer.out();
+        auto bounds = getLocalBounds().reduced(desc.padding).toFloat();
+        g.fillAll(desc.background);
+
+        for (auto x = 0; i < desc.
+    }
+
+    void setDesc(Desc d) {
+        desc_ = d;
+    }
 
     void saveSnapshotToFile(std::string const& name) {
         File file(name);
@@ -30,67 +54,54 @@ struct LightWindow::Impl : DocumentWindow {
         }
     }
 
-    void setLights(Segment<ColorRGB> colors) {
-        // runOnMessageThread([=] () { instrumentGrid_->setLights(colors); });
-    }
+    void setLights(ColorSegment colors) {
+        auto& in = colorBuffer.in();
+        if (in.size() < colors.size)
+            in.resize(colors.size());
 
-    LightingWindow* makeLightingWindow() {
-        MessageManagerLock l;
-
-        auto window = make_unique<LightingWindow>();
-        window->toFront(true);
-        window->setVisible(true);
-        window->grid()->setLightCount(256);
-
-        return window.release();
-    }
-
-    static string stringBounds(LightingWindow const& window) {
-        auto bounds = window.getScreenBounds();
-        return "{\"x\":" + std::to_string(bounds.getX()) +
-                ",\"y\":" + std::to_string(bounds.getY()) +
-                ",\"width\":" + std::to_string(bounds.getWidth()) +
-                ",\"height\":" + std::to_string(bounds.getHeight()) +
-                "}";
-    }
-
-    void closeButtonPressed() {
-        callTimedata("{\"event\":\"closeButtonPressed\"}");
-    }
-
-    void moved() {
-        callTimedata("{\"event\":\"moved\",\"bounds\":" +
-                     stringBounds(*this) + "}");
-    }
-
-    void resized() {
-        callTimedata("{\"event\":\"resized\",\"bounds\":" +
-                     stringBounds(*this) + "}");
-    }
-
-    static void deleteWindow(LightingWindow* window) {
-        delete window;
-    }
-
-    void deleteLightingWindow(LightingWindow* window) {
-        runOnMessageThread([=]() { delete window; });
+        for (size_t i = 0; i < colors.size; ++i)
+            in[i] = toColour(colors[i]);
+        colorBuffer.setDirty();
+        auto impl = this;
+        runOnMessageThread([=] () { impl->repaint(); });
     }
 };
 
-LightWindow::LightWindow() : impl_(std::make_unique<LightWindow>()) {
+LightWindow::LightWindow() {
+    runOnMessageThread([this]() { construct(); });
 }
 
-LightWindow::~LightWindow() = default;
+LightWindow::~LightWindow() {
+    std::shared_ptr<Impl> sp = std::move(impl_);
+    auto reset = [sp]() mutable {
+        sp.reset();
+    };
+    sp.reset();
 
+    // http://melpon.org/wandbox/permlink/8CDdVZzZRFWa5ZgM
+    // Now the lambda is guaranteed to have the last reference to sp.
+    // In C++14, I could use move semantics for the capture and avoid all this.
+    runOnMessageThread(reset);
+}
 
+void LightWindow::construct() {
+    auto impl = std::make_unique<Impl>();
+    locker_([&]() {
+        impl_ = std::move(impl);
+    });
+}
 
-void LightWindow::setLights(Segment<ColorRGB> segment) {
-    impl->setLights(segment);
+void LightWindow::setLights(ColorSegment colors) {
+    impl_->setLights(colors);
 }
 
 void LightWindow::saveSnapshotToFile(std::string const& filename) {
-    impl->saveSnapshotToFile(filename);
+    impl_->saveSnapshotToFile(filename);
 }
 
+bool LightWindow::isConstructed() const {
+    auto l = locker_();
+    return impl_;
+}
 
 } // timedata

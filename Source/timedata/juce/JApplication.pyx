@@ -10,11 +10,7 @@ cdef extern from "timedata/util/JApplication.h" namespace "timedata":
 cdef extern from "timedata/util/Quit.h" namespace "timedata":
     void quit() nogil
 
-def start_application(f):
-    if f:
-        callback = <void*> f
-    else:
-        callback = NULL
+def start_application(callback):
     with nogil:
         startApplication(perform_string_callback, callback)
 
