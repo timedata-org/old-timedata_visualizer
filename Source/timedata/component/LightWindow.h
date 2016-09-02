@@ -31,9 +31,21 @@ class LightWindow {
     Locker<> locker_; // Used only for construction.
 };
 
+
+namespace fill {
+
+struct Fill {
+    bool vertical;
+    bool bidirectional;
+    bool xReversed;  // Regular is left-to-right, reversed right-to-left.
+    bool yReversed;  // Regular is top to bottom,
+};
+
+struct Pair {
+    size_t x, y;
+};
+
 struct LightWindow::Desc {
-    enum class Attitude { horizontal, vertical };
-    enum class Layout { wrap, reverse };
     enum class Shape { rect, circle };
 
     struct Label {
@@ -44,15 +56,8 @@ struct LightWindow::Desc {
         std::vector<std::string> custom;
     };
 
-    struct Fill {
-        enum class X { right, left };
-        enum class Y { down, up };
-        X x;
-        Y y;
-    }
-
-    uint columns, rows;
-    int padding;
+    int rows, columns;
+    int padding, instrumentPadding;
 
     Attitude attitude;
     Colour background;

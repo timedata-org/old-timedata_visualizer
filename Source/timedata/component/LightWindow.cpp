@@ -3,11 +3,19 @@
 
 namespace timedata {
 
-
 template <typename Color>
 inline Colour toColour(Color c) {
     return {c[0], c[1], c[2]};
 }
+
+struct FillFlags {
+    bool bidirectional;
+    bool xReversed;  // Regular is left-to-right, reversed right-to-left.
+    bool yReversed;  // Regular is top to bottom.
+    bool vertical;
+    bool ellipse;
+    bool label;
+};
 
 struct LightWindow::Impl : DocumentWindow {
     using ColourList = std::vector<Colour>;
@@ -30,16 +38,50 @@ struct LightWindow::Impl : DocumentWindow {
 
     ~Impl() {}
 
-    void paint(Graphics& g) {
+    void paint(Graphics& g) override {
         auto& colors = colorBuffer.out();
         auto bounds = getLocalBounds().reduced(desc.padding).toFloat();
+        auto dx = (desc.fill.vertical ? bounds.w : bounds.h) / desc.columns;
+        auto dy = (desc.fill.vertical ? bounds.h : bounds.w) / desc.rows;
+        auto lpadding = desc.label.padding
+        auto rect = Rectangle<float>(dx, dy).reduced(lpadding);
+
         g.fillAll(desc.background);
 
-        for (auto x = 0; i < desc.
+        for (size_t y = 0, i = 0; y < desc.rows; ++y) {
+            auto xReversed = desc.fill.xReversed;
+            if (desc.fill.bidirectional and (p.y & 1))
+                xReversed = not xReversed;
+
+            for (size_t x = 0; x < desc.columns; ++x, ++i) {
+                auto& color = i < colors.size() ? colors[i] : Colours();
+                auto vx = xReversed ? desc.dimensions.x - x : x;
+                auto vy = desc.fill.yReversed ? desc.dimensions.y - y : y;
+                auto rx = bounds.pos.x + vx * dx;
+                auto rx = bounds.pos.y + vy * dy;
+                rect.pos = {rx * dx + lpadding, ry * dy + lpadding};
+                g.setColour(color);
+                if (desc.fill.ellipse)
+                    g.fillEllipse(rect);
+                else
+                    g.fillRect(rect);
+                if (desc.fill.label) {
+                    g.setColour(color.contrasting());
+                    g.drawFittedText(
+                        desc.labels[i], rect, Justification::centred, 1);
+                }
+            }
+        }
     }
 
     void setDesc(Desc d) {
-        desc_ = d;
+        desc = std::move(d);
+        if (desc.fill.label) {
+            for (size_t i = 0; i < desc.rows * desc.columns; ++i) {
+                if (i >= desc.labels.size())
+                    desc.labels.push_back(std::to_string(i));
+            }
+        }
     }
 
     void saveSnapshotToFile(std::string const& name) {
