@@ -1,15 +1,18 @@
 #!/usr/bin/env python3
 
-import setuptools, sys, unittest
+import os, setuptools, sys, unittest
 import Cython.Compiler.Options
 
 SOURCE_PATH = 'src/py'
+TIMEDATA_PATH = os.path.abspath('../timedata/src/py')
 
-sys.path.append(SOURCE_PATH)
+sys.path.extend((SOURCE_PATH, TIMEDATA_PATH))
 
 from timedata_build.arguments import check_python, insert_dependencies
-from timedata_build.context import CONFIG, FLAGS
-from timedata_build.commands import COMMANDS
+from timedata_build.config import CONFIG, FLAGS
+from timedata_visualizer.commands import COMMANDS
+
+print(CONFIG.__dict__)
 
 if False:
 
