@@ -1,9 +1,8 @@
-#include <timedata/util/TimedataApplication.h>
-#include "timedata/util/RunOnMessageThread.h"
+#include <timedata/juce/JApplication.h>
 
 namespace timedata {
 
-auto const LIBRARY_NAME = "ctimedata";
+auto const LIBRARY_NAME = "timedata_visualizer";
 auto const VERSION_NUMBER = "0.0";
 
 struct VisualizerContext {
@@ -20,14 +19,9 @@ struct VisualizerContext {
     }
 };
 
-juce::JUCEApplicationBase* juce_CreateApplication();
-
-inline void startJuceApplication() {
-    juce::JUCEApplicationBase::createInstance = &juce_CreateApplication;
-    static const char* argv[] = {LIBRARY_NAME};
-    juce::JUCEApplicationBase::main(1, argv);
+inline void quit() {
+    runOnMessageThread(JUCEApplicationBase::quit);
 }
-
 
 class ApplicationBase : public juce::JUCEApplicationBase {
   public:
@@ -40,7 +34,7 @@ class ApplicationBase : public juce::JUCEApplicationBase {
     }
 
     void systemRequestedQuit() override {
-        runOnMessageThread(JUCEApplicationBase::quit);
+        quit();
     }
 
     void shutdown() override {}
@@ -49,11 +43,21 @@ class ApplicationBase : public juce::JUCEApplicationBase {
     void resumed() override {}
     void unhandledException(const std::exception*, const String&, int) override
     {}
-
 };
 
 juce::JUCEApplicationBase* juce_CreateApplication() {
     return new ApplicationBase();
+}
+
+inline void startJuceApplication(StringCaller cb, void* userData) {
+    VisualizerContext::global() = {cd, userData};
+    juce::JUCEApplicationBase::createInstance = &juce_CreateApplication;
+    static const char* argv[] = {LIBRARY_NAME};
+    juce::JUCEApplicationBase::main(1, argv);
+}
+
+void callTimedata(std::string const& s) {
+    VisualizerContext::global().call(s.c_str());
 }
 
 } // timedata
