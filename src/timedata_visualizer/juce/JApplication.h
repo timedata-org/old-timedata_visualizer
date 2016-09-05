@@ -1,10 +1,12 @@
 #pragma once
 
+#include
+
 namespace timedata {
 
-typedef void (*StringCaller)(void *callback, string data);
+typedef void (*StringCaller)(std::string data);
 
-void startJuceApplication(StringCaller, void*);
+void startJuceApplication(StringCaller);
 void callTimedata(std::string const&);
 void quit();
 

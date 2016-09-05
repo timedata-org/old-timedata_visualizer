@@ -9,10 +9,6 @@ struct VisualizerContext {
     StringCaller callback;
     void* userData;
 
-    void call(char const* s) {
-        callback(userData, s);
-    }
-
     static VisualizerContext& global() {
         VisualizerContext context;
         return context;
@@ -30,7 +26,7 @@ class ApplicationBase : public juce::JUCEApplicationBase {
     bool moreThanOneInstanceAllowed() override { return false; }
 
     void initialise(const String&) override {
-        VisualizerContext::global().call("{\"event\":\"start\"}");
+        VisualizerContext::global().callback("{\"event\":\"start\"}");
     }
 
     void systemRequestedQuit() override {
@@ -57,7 +53,7 @@ inline void startJuceApplication(StringCaller cb, void* userData) {
 }
 
 void callTimedata(std::string const& s) {
-    VisualizerContext::global().call(s.c_str());
+    VisualizerContext::global().callback(s.c_str());
 }
 
 } // timedata

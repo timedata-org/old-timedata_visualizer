@@ -1,6 +1,8 @@
 TAGS
 Builds
 .DS_Store
+timedata_visualizer.cpp
+*.html
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

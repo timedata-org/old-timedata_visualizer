@@ -3,10 +3,10 @@ import atexit, time, traceback
 from libcpp cimport bool
 from libcpp.string cimport string
 
-ctypedef void (*StringCaller)(void *user_data, string)
+ctypedef void (*StringCaller)(string)
 
-cdef extern from "<timedata/juce/JApplication.h>" namespace "timedata":
-    void startJuceApplication(StringCaller cb, void* user_data) nogil
+cdef extern from "<timedata_visualizer/juce/JApplication.h>" namespace "timedata":
+    void startJuceApplication(StringCaller cb) nogil
     void quit() nogil
 
 _CALLBACKS = []
@@ -21,7 +21,7 @@ cpdef remove_callback(cb):
 cpdef clear_callbacks():
     _CALLBACKS.clear()
 
-cdef void perform_string_callback(void* f, string s) with gil:
+cdef void perform_string_callback(string s) with gil:
     bad_callbacks = []
 
     for cb in _CALLBACKS:
@@ -46,7 +46,7 @@ def start_application():
 
     print('about to startApplication')
     with nogil:
-        startApplication(perform_string_callback, callback)
+        startJuceApplication(perform_string_callback)
     print('startApplication done')
     sleep()
     print('start_application done')
