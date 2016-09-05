@@ -1,8 +1,10 @@
 #pragma once
 
-#include
+#include <JuceHeader.h>
 
 namespace timedata {
+
+using namespace juce;
 
 typedef void (*StringCaller)(std::string data);
 
