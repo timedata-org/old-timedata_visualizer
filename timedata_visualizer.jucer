@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<JUCERPROJECT id="ItzfWa" name="timedata_visualizer" projectType="library"
-              version="0.1.0" bundleIdentifier="timedata_visualizer" includeBinaryInAppConfig="1"
+<JUCERPROJECT id="ItzfWa" name="timedata_visualizer_juce" projectType="library"
+              version="0.1.0" bundleIdentifier="timedata_visualizer_juce" includeBinaryInAppConfig="1"
               jucerVersion="4.2.3" companyName="timedata" companyEmail="tom@swirly.com">
-  <MAINGROUP id="qbvDxN" name="timedata_visualizer">
+  <MAINGROUP id="qbvDxN" name="timedata_visualizer_juce">
     <GROUP id="{88B98A53-CD3E-29E5-1A58-70F602347613}" name="src"/>
   </MAINGROUP>
   <EXPORTFORMATS>
-    <XCODE_MAC targetFolder="build/juce/MacOSX">
+    <XCODE_MAC targetFolder="juce/MacOSX">
       <CONFIGURATIONS>
-        <CONFIGURATION name="Debug" isDebug="1" optimisation="1" targetName="timedata_visualizer"/>
-        <CONFIGURATION name="Release" isDebug="0" optimisation="3" targetName="timedata_visualizer"/>
+        <CONFIGURATION name="Debug" isDebug="1" optimisation="1" targetName="timedata_visualizer_juce"/>
+        <CONFIGURATION name="Release" isDebug="0" optimisation="3" targetName="timedata_visualizer_juce"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_core" path="../JUCE/modules"/>
@@ -21,12 +21,12 @@
         <MODULEPATH id="juce_gui_extra" path="../JUCE/modules"/>
       </MODULEPATHS>
     </XCODE_MAC>
-    <VS2015 targetFolder="build/juce/VisualStudio2015">
+    <VS2015 targetFolder="juce/VisualStudio2015">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" winWarningLevel="4" generateManifest="1" winArchitecture="32-bit"
-                       isDebug="1" optimisation="1" targetName="timedata_visualizer"/>
+                       isDebug="1" optimisation="1" targetName="timedata_visualizer_juce"/>
         <CONFIGURATION name="Release" winWarningLevel="4" generateManifest="1" winArchitecture="32-bit"
-                       isDebug="0" optimisation="3" targetName="timedata_visualizer"/>
+                       isDebug="0" optimisation="3" targetName="timedata_visualizer_juce"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_core" path="../JUCE/modules"/>
@@ -37,12 +37,12 @@
         <MODULEPATH id="juce_gui_extra" path="../JUCE/modules"/>
       </MODULEPATHS>
     </VS2015>
-    <LINUX_MAKE targetFolder="build/juce/LinuxMakefile">
+    <LINUX_MAKE targetFolder="juce/LinuxMakefile">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" libraryPath="/usr/X11R6/lib/" isDebug="1" optimisation="1"
-                       targetName="timedata_visualizer"/>
+                       targetName="timedata_visualizer_juce"/>
         <CONFIGURATION name="Release" libraryPath="/usr/X11R6/lib/" isDebug="0" optimisation="3"
-                       targetName="timedata_visualizer"/>
+                       targetName="timedata_visualizer_juce"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_core" path="../JUCE/modules"/>

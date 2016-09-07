@@ -1,0 +1,19 @@
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2015
+Project("{BBCF6262-0783-D89D-6EEB-BDCD921A581D}") = "timedata_visualizer_juce", "timedata_visualizer_juce.vcxproj", "{B3D70A3F-4DB4-76EA-A90B-F59BBECDF9A8}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B3D70A3F-4DB4-76EA-A90B-F59BBECDF9A8}.Debug|Win32.ActiveCfg = Debug|Win32
+		{B3D70A3F-4DB4-76EA-A90B-F59BBECDF9A8}.Debug|Win32.Build.0 = Debug|Win32
+		{B3D70A3F-4DB4-76EA-A90B-F59BBECDF9A8}.Release|Win32.ActiveCfg = Release|Win32
+		{B3D70A3F-4DB4-76EA-A90B-F59BBECDF9A8}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

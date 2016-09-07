@@ -3,6 +3,7 @@ Builds
 .DS_Store
 timedata_visualizer.cpp
 *.html
+juce/*/build/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
