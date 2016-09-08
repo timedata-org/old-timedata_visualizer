@@ -14,16 +14,23 @@ from timedata_build import commands, execute
 
 
 _JUCE_DIR_MAP = dict(
-    Darwin=('MacOSX', ),
-    Linux=('LinuxMakefile',),
-    Windows=('VisualStudio2015',),
+    Darwin=(
+        'MacOSX',
+        'xcodebuild'
+        ' -project juce/MacOSX/timedata_visualizer_juce.xcodeproj'
+        ' -configuration Release'
+        ' -jobs 6'),
+    Linux=('LinuxMakefile', 'make'),  # TODO: need to cd and set CONFIG=Release.
+    Windows=('VisualStudio2015', 'TODO'),
     )
+
+_JUCE_DIR, _JUCE_COMMAND = _JUCE_DIR_MAP[platform.system()]
 
 
 class BuildExt(commands.BuildExt):
     def _extension_dict(self):
         # Add the directory containing the Juce library to the compile args.
-        base = os.path.join('build', 'juce', _JUCE_DIR_MAP[platform.system()][0])
+        base = os.path.join('juce', _JUCE_DIR)
 
         # TODO: this next line will be different for Windows.
         library_dir = os.path.join(base, 'build', 'Release')
@@ -31,17 +38,17 @@ class BuildExt(commands.BuildExt):
         d['extra_link_args'] = ['-L%s' % library_dir]
         return d
 
+
 class BuildJuce(commands.Command.Command):
     description = 'Run Juce build'
 
     def run(self):
-        print('Building Juce')
-        if platform.system() == 'Linux':
-            pass
+        print(execute.run(*_JUCE_COMMAND.split()))
 
 
 COMMANDS = dict(
     build_ext=BuildExt,
+    build_juce=BuildJuce,
     clean=commands.Clean,
     )
 
