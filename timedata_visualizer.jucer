@@ -9,8 +9,12 @@
   <EXPORTFORMATS>
     <XCODE_MAC targetFolder="juce/MacOSX">
       <CONFIGURATIONS>
-        <CONFIGURATION name="Debug" isDebug="1" optimisation="1" targetName="timedata_visualizer_juce"/>
-        <CONFIGURATION name="Release" isDebug="0" optimisation="3" targetName="timedata_visualizer_juce"/>
+        <CONFIGURATION name="Debug" isDebug="1" optimisation="1" targetName="timedata_visualizer_juce"
+                       osxCompatibility="10.9 SDK" osxSDK="10.9 SDK" osxArchitecture="32BitUniversal"
+                       customXcodeFlags=""/>
+        <CONFIGURATION name="Release" isDebug="0" optimisation="3" targetName="timedata_visualizer_juce"
+                       osxCompatibility="10.9 SDK" osxSDK="10.9 SDK" linkTimeOptimisation="1"
+                       osxArchitecture="32BitUniversal" customXcodeFlags=""/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_core" path="../JUCE/modules"/>

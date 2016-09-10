@@ -46,10 +46,19 @@ class BuildJuce(commands.Command.Command):
         print(execute.run(*_JUCE_COMMAND.split()))
 
 
+class CleanJuce(commands.Clean):
+    NAME = 'juce_files'
+
+class CleanCython(commands.Clean):
+    NAME = 'cython_files'
+
+
 COMMANDS = dict(
     build_ext=BuildExt,
     build_juce=BuildJuce,
     clean=commands.Clean,
+    clean_juce=CleanJuce,
+    clean_cython=CleanCython,
     )
 
 # http://stackoverflow.com/a/37033551/43839
