@@ -1,12 +1,17 @@
 #!/usr/bin/env python3
 
-import os, platform, setuptools, sys, unittest
+import os
+
+if 'ARCHFLAGS' not in os.environ:
+    # Gnarly workaround from https://stackoverflow.com/questions/2584595.
+    os.environ['ARCHFLAGS'] = '-arch i386'
+
+import platform, setuptools, sys, unittest
 import Cython.Compiler.Options
 
-SOURCE_PATH = 'src/py'
 TIMEDATA_PATH = os.path.abspath('../timedata/src/py')
 
-sys.path.extend((SOURCE_PATH, TIMEDATA_PATH))
+sys.path.extend((TIMEDATA_PATH,))
 
 from timedata_build.arguments import check_python, insert_dependencies
 from timedata_build.config import CONFIG, FLAGS
@@ -52,7 +57,6 @@ class CleanJuce(commands.Clean):
 class CleanCython(commands.Clean):
     NAME = 'cython_files'
 
-
 COMMANDS = dict(
     build_ext=BuildExt,
     build_juce=BuildJuce,
@@ -63,8 +67,7 @@ COMMANDS = dict(
 
 # http://stackoverflow.com/a/37033551/43839
 def test_suite():
-    return unittest.TestLoader().discover(
-        SOURCE_PATH, pattern=FLAGS.test_pattern)
+    return unittest.TestLoader().discover('tests', pattern=FLAGS.test_pattern)
 
 
 check_python(FLAGS.minimum_python_version)
