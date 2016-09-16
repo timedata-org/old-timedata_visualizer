@@ -10,11 +10,11 @@
     <XCODE_MAC targetFolder="juce/MacOSX">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" isDebug="1" optimisation="1" targetName="timedata_visualizer_juce"
-                       osxCompatibility="10.9 SDK" osxSDK="10.9 SDK" osxArchitecture="32BitUniversal"
+                       osxCompatibility="10.9 SDK" osxSDK="10.9 SDK" osxArchitecture="64BitIntel"
                        customXcodeFlags=""/>
         <CONFIGURATION name="Release" isDebug="0" optimisation="3" targetName="timedata_visualizer_juce"
                        osxCompatibility="10.9 SDK" osxSDK="10.9 SDK" linkTimeOptimisation="1"
-                       osxArchitecture="32BitUniversal" customXcodeFlags=""/>
+                       osxArchitecture="64BitIntel" customXcodeFlags=""/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_core" path="../JUCE/modules"/>
@@ -67,4 +67,7 @@
     <MODULE id="juce_gui_extra" showAllCode="1" useLocalCopy="1"/>
   </MODULES>
   <JUCEOPTIONS/>
+  <LIVE_SETTINGS>
+    <OSX/>
+  </LIVE_SETTINGS>
 </JUCERPROJECT>
