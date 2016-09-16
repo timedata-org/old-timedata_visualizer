@@ -4,7 +4,7 @@ import os
 
 if 'ARCHFLAGS' not in os.environ:
     # Gnarly workaround from https://stackoverflow.com/questions/2584595.
-    os.environ['ARCHFLAGS'] = '-arch i386'
+    os.environ['ARCHFLAGS'] = '-arch x86_64'
 
 import platform, setuptools, sys, unittest
 import Cython.Compiler.Options
@@ -18,18 +18,18 @@ from timedata_build.config import CONFIG, FLAGS
 from timedata_build import commands, execute
 
 
-_JUCE_DIR_MAP = dict(
+_JUCE_MAP = dict(
     Darwin=(
         'MacOSX',
-        'xcodebuild'
-        ' -project juce/MacOSX/timedata_visualizer_juce.xcodeproj'
-        ' -configuration Release'
-        ' -jobs 6'),
-    Linux=('LinuxMakefile', 'make'),  # TODO: need to cd and set CONFIG=Release.
-    Windows=('VisualStudio2015', 'TODO'),
+        'xcodebuild  -project juce/MacOSX/timedata_visualizer_juce.xcodeproj'
+        ' -configuration Release -jobs 6',
+        '-framework Carbon -framework Cocoa -framework IOKit'
+        ' -framework QuartzCore -framework WebKit'),
+    Linux=('LinuxMakefile', 'make', ()),  # TODO: need to cd and set CONFIG=Release.
+    Windows=('VisualStudio2015', 'TODO', ()),
     )
 
-_JUCE_DIR, _JUCE_COMMAND = _JUCE_DIR_MAP[platform.system()]
+_JUCE_DIR, _JUCE_COMMAND, _JUCE_LINK = _JUCE_MAP[platform.system()]
 
 
 class BuildExt(commands.BuildExt):
@@ -40,7 +40,7 @@ class BuildExt(commands.BuildExt):
         # TODO: this next line will be different for Windows.
         library_dir = os.path.join(base, 'build', 'Release')
         d = super()._extension_dict()
-        d['extra_link_args'] = ['-L%s' % library_dir]
+        d['extra_link_args'] = ['-L%s' % library_dir] + _JUCE_LINK.split()
         return d
 
 
