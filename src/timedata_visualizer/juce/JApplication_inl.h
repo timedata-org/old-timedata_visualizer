@@ -2,13 +2,11 @@
 
 namespace timedata {
 
-struct VisualizerContext {
-    StringCaller callback;
-    void* userData;
 
-    static VisualizerContext& global() {
-        static VisualizerContext context;
-        return context;
+struct VisualizerContext {
+    static StringCaller& global() {
+        static StringCaller callback;
+        return callback;
     }
 };
 
@@ -23,7 +21,7 @@ class ApplicationBase : public juce::JUCEApplicationBase {
     bool moreThanOneInstanceAllowed() override { return false; }
 
     void initialise(const String&) override {
-        VisualizerContext::global().callback("{\"event\":\"start\"}");
+        VisualizerContext::global()("{\"event\":\"start\"}");
     }
 
     void systemRequestedQuit() override {
@@ -42,15 +40,15 @@ inline juce::JUCEApplicationBase* juce_CreateApplication() {
     return new ApplicationBase();
 }
 
-inline void startJuceApplication(StringCaller cb, void* userData) {
-    VisualizerContext::global() = {cb, userData};
+inline void startJuceApplication(StringCaller cb) {
+    VisualizerContext::global() = cb;
     juce::JUCEApplicationBase::createInstance = &juce_CreateApplication;
     static const char* argv[] = {"timedata_visualizer"};
     juce::JUCEApplicationBase::main(1, argv);
 }
 
 inline void callTimedata(std::string const& s) {
-    VisualizerContext::global().callback(s.c_str());
+    VisualizerContext::global()(s.c_str());
 }
 
 } // timedata
