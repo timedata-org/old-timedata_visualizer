@@ -10,6 +10,8 @@ cdef extern from "<timedata_visualizer/juce/JApplication_inl.h>" namespace "time
     void quitJuceApplication() nogil
 
 _CALLBACKS = []
+_QUEUE = queue.Queue()
+_STARTED = False
 
 cpdef add_callback(cb):
     if cb not in _CALLBACKS:
@@ -18,14 +20,24 @@ cpdef add_callback(cb):
 cpdef remove_callback(cb):
     _CALLBACKS.remove(cb)
 
+
 cpdef clear_callbacks():
     _CALLBACKS.clear()
 
+
 cdef void perform_string_callback(string s) with gil:
+    print('perform_string_callback')
+    global _STARTED
+    if not _STARTED:
+        _STARTED = True
+        _QUEUE.put('')
+        return
+
     bad_callbacks = []
 
     for cb in _CALLBACKS:
         try:
+            print('one callback')
             cb(s)
         except:
             traceback.print_exc(limit=100)
@@ -39,10 +51,9 @@ def _sleep():
 
 
 def start_application(callback):
-    q = queue.Queue()
     def target():
         print('waiting for queue')
-        q.get()
+        _QUEUE.get()
         print('application started, calling back')
         callback()
 
