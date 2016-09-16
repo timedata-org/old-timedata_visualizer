@@ -17,10 +17,11 @@ template <class Callback>
 void runOnMessageThread(Callback cb) {
     struct RunOnMessageThread : CallbackMessage {
         void messageCallback() override { callback(); }
+        RunOnMessageThread(Callback cb) : callback(cb) {}
         Callback callback;
     };
 
-    (new RunOnMessageThread{cb})->post();
+    (new RunOnMessageThread(cb))->post();
 }
 
 }  // namespace timedata

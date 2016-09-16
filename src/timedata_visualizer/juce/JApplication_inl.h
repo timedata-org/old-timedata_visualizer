@@ -1,16 +1,13 @@
-#include <timedata/juce/JApplication.h>
+#include <timedata_visualizer/juce/JApplication.h>
 
 namespace timedata {
-
-auto const LIBRARY_NAME = "timedata_visualizer";
-auto const VERSION_NUMBER = "0.0";
 
 struct VisualizerContext {
     StringCaller callback;
     void* userData;
 
     static VisualizerContext& global() {
-        VisualizerContext context;
+        static VisualizerContext context;
         return context;
     }
 };
@@ -21,8 +18,8 @@ inline void quit() {
 
 class ApplicationBase : public juce::JUCEApplicationBase {
   public:
-    String getApplicationName() override { return LIBRARY_NAME; }
-    String getApplicationVersion() override { return VERSION_NUMBER; }
+    const String getApplicationName() override { return "timedata_visualizer"; }
+    const String getApplicationVersion() override { return "0.0"; }
     bool moreThanOneInstanceAllowed() override { return false; }
 
     void initialise(const String&) override {
@@ -41,18 +38,18 @@ class ApplicationBase : public juce::JUCEApplicationBase {
     {}
 };
 
-juce::JUCEApplicationBase* juce_CreateApplication() {
+inline juce::JUCEApplicationBase* juce_CreateApplication() {
     return new ApplicationBase();
 }
 
 inline void startJuceApplication(StringCaller cb, void* userData) {
-    VisualizerContext::global() = {cd, userData};
+    VisualizerContext::global() = {cb, userData};
     juce::JUCEApplicationBase::createInstance = &juce_CreateApplication;
-    static const char* argv[] = {LIBRARY_NAME};
+    static const char* argv[] = {"timedata_visualizer"};
     juce::JUCEApplicationBase::main(1, argv);
 }
 
-void callTimedata(std::string const& s) {
+inline void callTimedata(std::string const& s) {
     VisualizerContext::global().callback(s.c_str());
 }
 

@@ -5,7 +5,7 @@ from libcpp.string cimport string
 
 ctypedef void (*StringCaller)(string)
 
-cdef extern from "<timedata_visualizer/juce/JApplication.h>" namespace "timedata":
+cdef extern from "<timedata_visualizer/juce/JApplication_inl.h>" namespace "timedata":
     void startJuceApplication(StringCaller cb) nogil
     void quit() nogil
 
