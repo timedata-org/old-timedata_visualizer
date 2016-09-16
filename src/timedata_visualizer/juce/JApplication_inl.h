@@ -2,6 +2,26 @@
 
 namespace timedata {
 
+template <class Callback>
+void runOnMessageThread(Callback cb, std::string message) {
+    struct RunOnMessageThread : CallbackMessage {
+        void messageCallback() override {
+            if (!message.empty())
+                std::cerr << "starting " << message << "\n";
+            callback();
+            if (!message.empty())
+                std::cerr << "finished " << message << "\n";
+        }
+        RunOnMessageThread(Callback cb, std::string m)
+                : callback(cb), message(m) {
+        }
+
+        Callback callback;
+        std::string message;
+    };
+
+    (new RunOnMessageThread(cb, message))->post();
+}
 
 struct VisualizerContext {
     static StringCaller& global() {
@@ -22,6 +42,7 @@ class ApplicationBase : public juce::JUCEApplicationBase {
     bool moreThanOneInstanceAllowed() override { return false; }
 
     void initialise(const String&) override {
+        std::cerr << "initialise\n";
         VisualizerContext::global()("{\"event\":\"start\"}");
     }
 
@@ -46,6 +67,7 @@ inline void startJuceApplication(StringCaller cb) {
     VisualizerContext::global() = cb;
     juce::JUCEApplicationBase::createInstance = &juce_CreateApplication;
     static const char* argv[] = {"timedata_visualizer"};
+    std::cerr << "calling main\n";
     juce::JUCEApplicationBase::main(1, argv);
     std::cerr << "done with main\n";
 }
