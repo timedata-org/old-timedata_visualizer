@@ -10,8 +10,9 @@ struct VisualizerContext {
     }
 };
 
-inline void quit() {
-    runOnMessageThread(JUCEApplicationBase::quit);
+inline void quitJuceApplication() {
+    std::cerr << "Starting to quit\n";
+    runOnMessageThread(JUCEApplicationBase::quit, "quit");
 }
 
 class ApplicationBase : public juce::JUCEApplicationBase {
@@ -37,6 +38,7 @@ class ApplicationBase : public juce::JUCEApplicationBase {
 };
 
 inline juce::JUCEApplicationBase* juce_CreateApplication() {
+    std::cerr << "creating new juce application\n";
     return new ApplicationBase();
 }
 
@@ -45,6 +47,7 @@ inline void startJuceApplication(StringCaller cb) {
     juce::JUCEApplicationBase::createInstance = &juce_CreateApplication;
     static const char* argv[] = {"timedata_visualizer"};
     juce::JUCEApplicationBase::main(1, argv);
+    std::cerr << "done with main\n";
 }
 
 inline void callTimedata(std::string const& s) {
