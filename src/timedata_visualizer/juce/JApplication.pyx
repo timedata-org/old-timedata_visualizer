@@ -13,75 +13,32 @@ _CALLBACKS = []
 _QUEUE = queue.Queue()
 _STARTED = False
 
-cpdef add_callback(cb):
-    if cb not in _CALLBACKS:
-        _CALLBACKS.append(cb)
-
-cpdef remove_callback(cb):
-    _CALLBACKS.remove(cb)
-
-
-cpdef clear_callbacks():
-    _CALLBACKS.clear()
-
 
 cdef void perform_string_callback(string s) with gil:
-    print('perform_string_callback')
-    global _STARTED
-    if not _STARTED:
-        _STARTED = True
-        _QUEUE.put('')
-        return
-
-    bad_callbacks = []
-
-    for cb in _CALLBACKS:
-        try:
-            print('one callback')
-            cb(s)
-        except:
-            traceback.print_exc(limit=100)
-            bad_callbacks.append(cb)
-    for cb in bad_callbacks:
-        remove_callback(cb)
-
-
-def _sleep():
-    time.sleep(0.5) # HACK to avoid waiting for the message queue.
+    _QUEUE.put(s)
 
 
 def start_application(callback):
+    assert threading.current_thread() is threading.main_thread(), (
+        'JApplication must run on main thread')
+
     def target():
-        print('waiting for queue')
-        _QUEUE.get()
-        print('application started, calling back')
+        print('Waiting for JUCE queue')
+        s = _QUEUE.get()
+        print('JUCE application started (%s), calling back' % s)
         callback()
 
     threading.Thread(target=target).start()
-    _sleep()
+    time.sleep(0.1)
 
-    print('about to startApplication')
+    print('About to start JUCE application.')
     with nogil:
         startJuceApplication(perform_string_callback)
-    print('startApplication done')
+    print('JUCE application has shut down.')
 
 
 def quit_application():
-    print('quitting JUCE')
+    print('Quitting JUCE application')
     quitJuceApplication()
 
-def register_quit():
-    print('registering quit')
-    atexit.register(quit_application)
-
-
-def start_application_in_thread():
-    def target():
-        print('about to startApplication')
-        with nogil:
-            startJuceApplication(perform_string_callback)
-        print('startApplication done')
-    threading.Thread(target=target, daemon=True).start()
-    print('start_application done')
-
-# _start_application()
+atexit.register(quit_application)

@@ -23,16 +23,14 @@ void runOnMessageThread(Callback cb, std::string message) {
     (new RunOnMessageThread(cb, message))->post();
 }
 
-struct VisualizerContext {
-    static StringCaller& global() {
-        static StringCaller callback;
-        return callback;
-    }
-};
+
+static StringCaller& globalCallback() {
+    static StringCaller callback;
+    return callback;
+}
 
 inline void quitJuceApplication() {
-    std::cerr << "Starting to quit\n";
-    runOnMessageThread(JUCEApplicationBase::quit, "quit");
+    runOnMessageThread(JUCEApplicationBase::quit);
 }
 
 class ApplicationBase : public juce::JUCEApplicationBase {
@@ -42,8 +40,7 @@ class ApplicationBase : public juce::JUCEApplicationBase {
     bool moreThanOneInstanceAllowed() override { return false; }
 
     void initialise(const String&) override {
-        std::cerr << "initialise\n";
-        VisualizerContext::global()("{\"event\":\"start\"}");
+        globalCallback()("{\"event\":\"start\"}");
     }
 
     void systemRequestedQuit() override {
@@ -59,21 +56,18 @@ class ApplicationBase : public juce::JUCEApplicationBase {
 };
 
 inline juce::JUCEApplicationBase* juce_CreateApplication() {
-    std::cerr << "creating new juce application\n";
     return new ApplicationBase();
 }
 
 inline void startJuceApplication(StringCaller cb) {
-    VisualizerContext::global() = cb;
+    globalCallback() = cb;
     juce::JUCEApplicationBase::createInstance = &juce_CreateApplication;
     static const char* argv[] = {"timedata_visualizer"};
-    std::cerr << "calling main\n";
     juce::JUCEApplicationBase::main(1, argv);
-    std::cerr << "done with main\n";
 }
 
 inline void callTimedata(std::string const& s) {
-    VisualizerContext::global()(s.c_str());
+    globalCallback()(s.c_str());
 }
 
 } // timedata
