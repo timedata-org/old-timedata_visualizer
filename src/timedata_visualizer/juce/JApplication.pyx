@@ -1,4 +1,4 @@
-import atexit, queue, time, threading, traceback
+import atexit, multiprocessing, queue, time, threading, traceback
 
 from libcpp cimport bool
 from libcpp.string cimport string
@@ -18,7 +18,9 @@ cdef void perform_string_callback(string s) with gil:
     _QUEUE.put(s)
 
 
-def start_application(callback):
+def start_application(pipe):
+    # This must be run on the main thread.  You can run it in a multiprocess,
+    # but you must have started it with 'spawn'.
     assert threading.current_thread() is threading.main_thread(), (
         'JApplication must run on main thread')
 
@@ -26,7 +28,7 @@ def start_application(callback):
         print('Waiting for JUCE queue')
         s = _QUEUE.get()
         print('JUCE application started (%s), calling back' % s)
-        callback()
+        callback(s, _QUEUE)
 
     threading.Thread(target=target).start()
     time.sleep(0.1)
@@ -42,3 +44,19 @@ def quit_application():
     quitJuceApplication()
 
 atexit.register(quit_application)
+
+
+def start_test():
+    def callback(s, q):
+        print('callback...')
+        time.sleep(3)
+        print('...callback done')
+        quit_application()
+    start_application(callback)
+
+
+def start_application_in_process():
+    ctx = multiprocessing.get_context('spawn')
+    pipe = ctx.Pipe()
+    process = ctx.Process(target=start_application, args=(pipe,)).start()
+    return process, pipe
