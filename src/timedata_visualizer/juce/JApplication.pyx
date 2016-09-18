@@ -26,9 +26,9 @@ def start_application(pipe):
 
     def target():
         print('Waiting for JUCE queue')
-        s = _QUEUE.get()
-        print('JUCE application started (%s), calling back' % s)
-        callback(s, _QUEUE)
+        #s = _QUEUE.get()
+        #print('JUCE application started (%s), calling back' % s)
+        #callback(s, _QUEUE)
 
     threading.Thread(target=target).start()
     time.sleep(0.1)
@@ -44,7 +44,6 @@ def quit_application():
     quitJuceApplication()
 
 atexit.register(quit_application)
-
 
 def start_test():
     def callback(s, q):

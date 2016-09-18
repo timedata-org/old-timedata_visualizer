@@ -54,8 +54,15 @@ class BuildJuce(commands.Command.Command):
 class CleanJuce(commands.Clean):
     NAME = 'juce_files'
 
+
 class CleanCython(commands.Clean):
     NAME = 'cython_files'
+
+
+class Generate(commands.Generate):
+    def _classes(self, template_directory):
+        return []
+
 
 COMMANDS = dict(
     build_ext=BuildExt,
@@ -63,6 +70,7 @@ COMMANDS = dict(
     clean=commands.Clean,
     clean_juce=CleanJuce,
     clean_cython=CleanCython,
+    generate=Generate,
     )
 
 # http://stackoverflow.com/a/37033551/43839

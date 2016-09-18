@@ -1,5 +1,4 @@
-#include <timedata/util/RunOnMessageThread.h>
-#include <timedata/base/doubleBuffer.h>
+#include <string>
 
 namespace timedata {
 
@@ -8,106 +7,107 @@ inline Colour toColour(Color c) {
     return {c[0], c[1], c[2]};
 }
 
-struct FillFlags {
-    bool bidirectional;
-    bool xReversed;  // Regular is left-to-right, reversed right-to-left.
-    bool yReversed;  // Regular is top to bottom.
-    bool vertical;
-    bool ellipse;
-    bool label;
-};
+inline LightWindow::LightWindow() {
+    // setContentOwned(instrumentGrid_, true);
+    // centreWithSize(getWidth(), getHeight());
+    setUsingNativeTitleBar(true);
+    toFront(true);
+    setVisible(true);
+}
 
-struct LightWindow::Impl : DocumentWindow {
-    using ColourList = std::vector<Colour>;
-    using ColourBuffer = DoubleBuffer<ColourList>;
-    using Desc = LightWindow::Desc;
-
-    Desc desc;
-    ColorBuffer colorBuffer;
-
-    Impl(Desc d) : DocumentWindow("timedata lighting simulator",
-                                  Colours::lightgrey,
-                                  DocumentWindow::allButtons) {
-        setDesc(d);
-        // setContentOwned(instrumentGrid_, true);
-        // centreWithSize(getWidth(), getHeight());
-        setUsingNativeTitleBar(true);
-        toFront(true);
-        setVisible(true);
+inline std::string toCharString(size_t n) {
+    std::string result;
+    while (n) {
+        result += ('a' + n % 26);
+        n /= 26;
     }
 
-    ~Impl() {}
+    if (result.empty())
+        result += 'a';
+    else
+        std::reverse(result.begin(), result.end());
+    return result;
+}
 
-    void paint(Graphics& g) override {
-        auto& colors = colorBuffer.out();
-        auto bounds = getLocalBounds().reduced(desc.padding).toFloat();
-        auto dx = (desc.fill.vertical ? bounds.w : bounds.h) / desc.columns;
-        auto dy = (desc.fill.vertical ? bounds.h : bounds.w) / desc.rows;
-        auto lpadding = desc.label.padding
-        auto rect = Rectangle<float>(dx, dy).reduced(lpadding);
+inline void LightWindow::paint(Graphics& g) {
+    auto bounds = getLocalBounds().reduced(desc_.windowPadding).toFloat();
+    auto tile = Rectangle<float>(bounds.w / width_;, bounds.h / height_);
+    auto instrument = instrumentRect.reduced(desc_.instrumentPadding);
+    auto relative = instrument;
+    auto bp = bufferPointer();
 
-        g.fillAll(desc.background);
+    g.fillAll(Colours.black);
 
-        for (size_t y = 0, i = 0; y < desc.rows; ++y) {
-            auto xReversed = desc.fill.xReversed;
-            if (desc.fill.bidirectional and (p.y & 1))
-                xReversed = not xReversed;
+    for (size_t i = 0, cp = 0; i < height_; ++i) {
+        relative.setY(instrument.getY() + i * tile.getY());
+        for (size_t j = 0; j < width; ++j) {
+            auto r = bp[cp++];
+            auto g = bp[cp++];
+            auto b = bp[cp++];
+            auto colour = Colour(r, g, b);
+            g.setColour(colour);
+            relative.setX(instrument.getX() + j * tile.getX());
 
-            for (size_t x = 0; x < desc.columns; ++x, ++i) {
-                auto& color = i < colors.size() ? colors[i] : Colours();
-                auto vx = xReversed ? desc.dimensions.x - x : x;
-                auto vy = desc.fill.yReversed ? desc.dimensions.y - y : y;
-                auto rx = bounds.pos.x + vx * dx;
-                auto rx = bounds.pos.y + vy * dy;
-                rect.pos = {rx * dx + lpadding, ry * dy + lpadding};
-                g.setColour(color);
-                if (desc.fill.ellipse)
-                    g.fillEllipse(rect);
-                else
-                    g.fillRect(rect);
-                if (desc.fill.label) {
-                    g.setColour(color.contrasting());
-                    g.drawFittedText(
-                        desc.labels[i], rect, Justification::centred, 1);
-                }
+            if (desc_.shape == LightWindow::Shape::rect)
+                g.fillRect(relative);
+            else
+                g.fillEllipse(relative);
+
+            if (desc_.label != LightWindow::Label::none) {
+                g.setColour(color.contrasting());
+                auto n = i * width_ + j + 1;
+                auto isNumber = (desc_.label == LightWindow::Label::number);
+                auto text = isNumber ? std::to_string(n) : toCharString(n);
+                relative.reduce(desc_.labelPadding);
+                g.drawFittedText(text, relative, Justification::centred, 1);
             }
         }
     }
+}
 
-    void setDesc(Desc d) {
-        desc = std::move(d);
-        if (desc.fill.label) {
-            for (size_t i = 0; i < desc.rows * desc.columns; ++i) {
-                if (i >= desc.labels.size())
-                    desc.labels.push_back(std::to_string(i));
-            }
-        }
+void LightWindow::setDesc(LightWindowDesc d) {
+    desc_ = d;
+    repaint();
+}
+
+void LightWindow::saveSnapshotToFile(std::string const& name) {
+    File file(name);
+    if (auto format = ImageFileFormat::findImageFormatForFileExtension(file)) {
+        auto image = createComponentSnapshot(getLocalBounds());
+        FileOutputStream stream(file);
+        if (not format->writeImageToStream(image, stream))
+            std::cerr << "Unable to write to filename " << name;
+    } else {
+        std::cerr << "Don't understand filename " << name;
     }
+}
 
-    void saveSnapshotToFile(std::string const& name) {
-        File file(name);
-        if (auto format = ImageFileFormat::findImageFormatForFileExtension(file)) {
-            auto image = createComponentSnapshot(getLocalBounds());
-            FileOutputStream stream(file);
-            if (not format->writeImageToStream(image, stream))
-                LOG(DFATAL) << "Unable to write to filename " << name;
-        } else {
-            LOG(DFATAL) << "Don't understand filename " << name;
-        }
+void LightWindow::setLights(size_t width, size_t height, BufferPointer* bp) {
+    width_ = width;
+    height_ = height;
+
+    if (bp) {
+        bufferPointer_ = bp;
+    } else {
+        auto size = width * height;
+        if (buffer_.size() < size())
+            buffer_.resize(size);
+        bufferPointer_ = &buffer.front();
     }
+    repaint();
+}
 
-    void setLights(ColorSegment colors) {
-        auto& in = colorBuffer.in();
-        if (in.size() < colors.size)
-            in.resize(colors.size());
+ColorSegment colors) {
+    auto& in = colorBuffer.in();
+    if (in.size() < colors.size)
+        in.resize(colors.size());
 
-        for (size_t i = 0; i < colors.size; ++i)
-            in[i] = toColour(colors[i]);
-        colorBuffer.setDirty();
-        auto impl = this;
-        runOnMessageThread([=] () { impl->repaint(); });
-    }
-};
+    for (size_t i = 0; i < colors.size; ++i)
+        in[i] = toColour(colors[i]);
+    colorBuffer.setDirty();
+    auto impl = this;
+    runOnMessageThread([=] () { impl->repaint(); });
+}
 
 LightWindow::LightWindow() {
     runOnMessageThread([this]() { construct(); });
@@ -139,11 +139,6 @@ void LightWindow::setLights(ColorSegment colors) {
 
 void LightWindow::saveSnapshotToFile(std::string const& filename) {
     impl_->saveSnapshotToFile(filename);
-}
-
-bool LightWindow::isConstructed() const {
-    auto l = locker_();
-    return impl_;
 }
 
 } // timedata

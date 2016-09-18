@@ -24,7 +24,7 @@ void runOnMessageThread(Callback cb, std::string message) {
 }
 
 
-static StringCaller& globalCallback() {
+inline static StringCaller& globalCallback() {
     static StringCaller callback;
     return callback;
 }

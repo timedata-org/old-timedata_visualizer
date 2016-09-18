@@ -1,71 +1,38 @@
 #pragma once
 
-#include <timedata/base/segment.h>
-#include <timedata/signal/sample.h>
+#include <mutex>
+
+#include <timedata_visualizer/component/LightWindowDesc.h>
 
 namespace timedata {
 
-using ColorSegment = Segment<ColorRGB const>;
-
-class LightWindow {
+class LightWindow : DocumentWindow {
   public:
-    struct Desc;
+    using BufferPointer = uint8_t*;
 
-    LightWindow(Desc);
-    ~LightWindow();
+    LightWindow();
+    ~LightWindow() = default;
 
-    void setLights(ColorSegment);
+    // All methods must be called on the message manager thread.
+    void paint(Graphics& g) override;
+    void setDesc(LightWindowDesc);
+    void setLights(size_t width, size_t height, BufferPointer* p = nullptr);
 
-    /** Returns an error or an empty string if all went well. */
+    BufferPointer bufferPointer() { return bufferPointer_; }
+
+    /** Returns an error, otherwise an empty string if all went well. */
     std::string saveSnapshotToFile(std::string const& filename);
-    bool isConstructed() const;
-
-    /** Actually constructs the implementation, a JUCE component.
-        I believe this must be called on the message thread. */
-    void construct();
 
   private:
-    struct Impl;
-    std::unique_ptr<Impl> impl_;
+    size_t width_, height_;
+    LightWindowDesc desc;
+    BufferPointer bufferPointer_;
+    std::vector<uint8_t> buffer_;
 
-    Locker<> locker_; // Used only for construction.
-};
+    using Mutex = std::mutex;
+    using Lock = std::unique_lock<Mutex>;
 
-
-namespace fill {
-
-struct Fill {
-    bool vertical;
-    bool bidirectional;
-    bool xReversed;  // Regular is left-to-right, reversed right-to-left.
-    bool yReversed;  // Regular is top to bottom,
-};
-
-struct Pair {
-    size_t x, y;
-};
-
-struct LightWindow::Desc {
-    enum class Shape { rect, circle };
-
-    struct Label {
-        enum class Type {none, letter, number};
-
-        Type type;
-        int padding;
-        std::vector<std::string> custom;
-    };
-
-    int rows, columns;
-    int padding, instrumentPadding;
-
-    Attitude attitude;
-    Colour background;
-    Layout layout;
-    Shape shape;
-
-    Fill fill;
-    Label label;
+    Mutex mutex_;
 };
 
 }  // namespace timedata
