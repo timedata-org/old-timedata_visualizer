@@ -30,6 +30,7 @@ inline static StringCaller& globalCallback() {
 }
 
 inline void quitJuceApplication() {
+    std::cerr << "quitJuceApplication\n";
     runOnMessageThread(JUCEApplicationBase::quit);
 }
 
@@ -68,6 +69,13 @@ inline void startJuceApplication(StringCaller cb) {
 
 inline void callTimedata(std::string const& s) {
     globalCallback()(s.c_str());
+}
+
+inline void receiveMessageToJuce(std::string const& s) {
+    if (s == "quit") {
+        std::cerr << "quit message\n";
+        quitJuceApplication();
+    }
 }
 
 } // timedata

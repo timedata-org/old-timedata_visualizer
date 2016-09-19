@@ -8,54 +8,59 @@ ctypedef void (*StringCaller)(string)
 cdef extern from "<timedata_visualizer/juce/JApplication_inl.h>" namespace "timedata":
     void startJuceApplication(StringCaller cb) nogil
     void quitJuceApplication() nogil
+    void receiveMessageToJuce(string);
 
-_CALLBACKS = []
-_QUEUE = queue.Queue()
-_STARTED = False
+_TIMEOUT = 0.1
+
+# _FROM_JUCE has to be a global variable so that perform_string_callback can be
+# a pure C function.  This only gets assigned in a Juce process, not in the
+# master process.
+_FROM_JUCE = None
+
+cdef void _send_from_juce(string s) with gil:
+    _FROM_JUCE.put(s)
+
+cpdef _forward_to_juce(q):
+    while True:
+        try:
+            receiveMessageToJuce(q.get(timeout=_TIMEOUT))
+        except queue.Empty:
+            continue
 
 
-cdef void perform_string_callback(string s) with gil:
-    _QUEUE.put(s)
-
-
-def start_application(pipe):
+def juce_application(to_juce, from_juce):
     # This must be run on the main thread.  You can run it in a multiprocess,
     # but you must have started it with 'spawn'.
     assert threading.current_thread() is threading.main_thread(), (
         'JApplication must run on main thread')
 
-    def target():
-        print('Waiting for JUCE queue')
-        #s = _QUEUE.get()
-        #print('JUCE application started (%s), calling back' % s)
-        #callback(s, _QUEUE)
+    global _FROM_JUCE
+    assert not _FROM_JUCE
+    _FROM_JUCE = from_juce
 
-    threading.Thread(target=target).start()
-    time.sleep(0.1)
+    threading.Thread(
+        target=_forward_to_juce,
+        args=(to_juce,),
+        daemon=True).start()
+    time.sleep(_TIMEOUT) # Just to make sure. :-D
 
     print('About to start JUCE application.')
     with nogil:
-        startJuceApplication(perform_string_callback)
+        startJuceApplication(_send_from_juce)
     print('JUCE application has shut down.')
 
 
-def quit_application():
-    print('Quitting JUCE application')
-    quitJuceApplication()
+class JuceApplication(object):
+    def __init__(self):
+        ctx = multiprocessing.get_context('spawn')
+        args = ctx.Queue(), ctx.Queue()
+        self.to_juce, self.from_juce = args
+        self.process = ctx.Process(target=juce_application, args=args)
+        self.start = self.process.start
 
-atexit.register(quit_application)
+    def __del__(self):
+        quit()
 
-def start_test():
-    def callback(s, q):
-        print('callback...')
-        time.sleep(3)
-        print('...callback done')
-        quit_application()
-    start_application(callback)
-
-
-def start_application_in_process():
-    ctx = multiprocessing.get_context('spawn')
-    pipe = ctx.Pipe()
-    process = ctx.Process(target=start_application, args=(pipe,)).start()
-    return process, pipe
+    def quit(self):
+        print('quit!')
+        self.to_juce.put('quit')
