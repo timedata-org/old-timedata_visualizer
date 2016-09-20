@@ -43,7 +43,10 @@ def juce_application(to_juce, from_juce):
         args=(to_juce,),
         daemon=True).start()
     time.sleep(_TIMEOUT) # Just to make sure. :-D
+    start_juce_application()
 
+
+def start_juce_application():
     print('About to start JUCE application.')
     with nogil:
         startJuceApplication(_send_from_juce)
