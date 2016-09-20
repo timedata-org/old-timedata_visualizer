@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
+	<false/>
+	<key>IDESourceControlProjectIdentifier</key>
+	<string>9F754961-B9ED-4A67-B78D-A2131E96D11E</string>
+	<key>IDESourceControlProjectName</key>
+	<string>timedata_visualizer_juce</string>
+	<key>IDESourceControlProjectOriginsDictionary</key>
+	<dict>
+		<key>60F2D1FF-8A3C-4723-865D-13B630D2760C</key>
+		<string>ssh://github.com/julianstorer/JUCE.git</string>
+		<key>D3259A9E-030A-4F2E-914A-0D3FEBFF88F0</key>
+		<string>ssh://github.com/timedata-org/timedata_visualizer.git</string>
+	</dict>
+	<key>IDESourceControlProjectPath</key>
+	<string>juce/MacOSX/timedata_visualizer_juce.xcodeproj/project.xcworkspace</string>
+	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
+	<dict>
+		<key>60F2D1FF-8A3C-4723-865D-13B630D2760C</key>
+		<string>../../../../../JUCE</string>
+		<key>D3259A9E-030A-4F2E-914A-0D3FEBFF88F0</key>
+		<string>../../../..</string>
+	</dict>
+	<key>IDESourceControlProjectURL</key>
+	<string>ssh://github.com/timedata-org/timedata_visualizer.git</string>
+	<key>IDESourceControlProjectVersion</key>
+	<integer>110</integer>
+	<key>IDESourceControlProjectWCCIdentifier</key>
+	<string>D3259A9E-030A-4F2E-914A-0D3FEBFF88F0</string>
+	<key>IDESourceControlProjectWCConfigurations</key>
+	<array>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>60F2D1FF-8A3C-4723-865D-13B630D2760C</string>
+			<key>IDESourceControlWCCName</key>
+			<string>JUCE</string>
+		</dict>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>D3259A9E-030A-4F2E-914A-0D3FEBFF88F0</string>
+			<key>IDESourceControlWCCName</key>
+			<string>timedata_visualizer</string>
+		</dict>
+	</array>
+</dict>
+</plist>
