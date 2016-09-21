@@ -42,7 +42,7 @@ def juce_application(to_juce, from_juce):
         target=_forward_to_juce,
         args=(to_juce,),
         daemon=True).start()
-    time.sleep(_TIMEOUT) # Just to make sure. :-D
+    time.sleep(_TIMEOUT)  # Just to make sure. :-D
     start_juce_application()
 
 
@@ -65,5 +65,7 @@ class JuceApplication(object):
         quit()
 
     def quit(self):
-        print('quit!')
-        self.to_juce.put('quit')
+        to_juce = None
+        to_juce, self.to_juce = self.to_juce, to_juce
+        if to_juce:
+            to_juce.put('quit')
