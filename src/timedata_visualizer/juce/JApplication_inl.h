@@ -2,36 +2,13 @@
 
 namespace timedata {
 
-template <class Callback>
-void runOnMessageThread(Callback cb, std::string message) {
-    struct RunOnMessageThread : CallbackMessage {
-        void messageCallback() override {
-            if (!message.empty())
-                std::cerr << "starting " << message << "\n";
-            callback();
-            if (!message.empty())
-                std::cerr << "finished " << message << "\n";
-        }
-        RunOnMessageThread(Callback cb, std::string m)
-                : callback(cb), message(m) {
-        }
-
-        Callback callback;
-        std::string message;
-    };
-
-    (new RunOnMessageThread(cb, message))->post();
-}
-
-
 inline static StringCaller& globalCallback() {
     static StringCaller callback;
     return callback;
 }
 
 inline void quitJuceApplication() {
-    std::cerr << "quitJuceApplication\n";
-    runOnMessageThread(JUCEApplicationBase::quit);
+    MessageManager::callAsync(JUCEApplicationBase::quit);
 }
 
 class ApplicationBase : public juce::JUCEApplicationBase {

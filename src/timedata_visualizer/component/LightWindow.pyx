@@ -1,66 +1,19 @@
-from libcpp.string cimport string
-from libcpp cimport bool
-from libcpp.string cimport string
+cdef extern from "timedata_visualizer/component/LightWindow_inl.h" namespace "timedata":
+    cdef cppclass LightWindow:
+        LightWindow()
+        void setDesc(LightWindowDesc)
+        void setLights(size_t width, size_t height, uint8_t* memory);
+        void saveSnapshotToFile(string filename)
 
-include "timedata/component/InstrumentGrid.pyx"
 
-cdef extern from "timedata/component/LightingWindow.h" namespace "timedata":
-    cdef cppclass LightingWindow:
-        InstrumentGrid* grid()
-        void saveSnapshotToFile(string)
-        void setLights(FColorList)
-        void setVisible(bool)
-        bool isVisible()
+cdef class _LightWindow:
+    cdef LightWindow cdata;
 
-    LightingWindow* makeLightingWindow() nogil
-    void deleteLightingWindow(LightingWindow*) nogil
+    cpdef void set_desc(self, _LightWindowDesc desc):
+        self.cdata.setDesc(desc.cdata)
 
-cdef class PyLightingWindow:
-    cdef LightingWindow* thisptr
+    cpdef void set_lights(self, size_t width, size_t height, uint64_t buffer):
+        self.cdata.setLights(width, height, <uint8_t*> buffer)
 
-    def __cinit__(self):
-        self.thisptr = makeLightingWindow()
-
-    def __dealloc__(self):
-        self.dealloc()
-
-    property visible:
-        def __get__(self):
-            return self.thisptr.isVisible()
-
-        def __set__(self, bool visible):
-            self.thisptr.setVisible(visible)
-
-    property gamma:
-        def __get__(self):
-            return self.thisptr.grid().gamma()
-
-        def __set__(self, float gamma):
-            self.thisptr.grid().setGamma(gamma)
-
-    def dealloc(self):
-        deleteLightingWindow(self.thisptr)
-        self.thisptr = NULL
-
-    def set_lights(self, ColorList lights):
-        self.thisptr.setLights(lights.thisptr[0])
-
-    def set_light_count(self, int count):
-        self.thisptr.grid().setLightCount(count)
-
-    def save_snapshot_to_file(self, object filename):
-        self.thisptr.saveSnapshotToFile(filename)
-
-    def set_shape(self, bool isRect):
-        self.thisptr.grid().setShape(isRect)
-
-    def set_show_label(self, bool show):
-        self.thisptr.grid().setShowLabel(show)
-
-    def set_label_starts_at_zero(self, bool at_zero):
-        self.thisptr.grid().setLabelStartsAtZero(at_zero)
-
-    def set_layout(self, object layout, object size, object padding,
-                   object instrument_padding, object label_padding):
-        self.thisptr.grid().setLayout(layout, size, padding, instrument_padding,
-                                      label_padding)
+    cpdef void save_snapshot_to_file(self, string name):
+        self.cdata.saveSnapshotToFile(name)

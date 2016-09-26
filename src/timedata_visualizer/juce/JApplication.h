@@ -13,7 +13,4 @@ void callTimedata(std::string const&);
 void quitJuceApplication();
 void receiveMessageToJuce(std::string const&);
 
-template <class Callback>
-void runOnMessageThread(Callback cb, std::string message = "");
-
 }  // namespace timedata

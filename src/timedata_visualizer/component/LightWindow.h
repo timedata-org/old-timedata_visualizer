@@ -6,26 +6,23 @@
 
 namespace timedata {
 
-class LightWindow : DocumentWindow {
+class UnlockedLightWindow : public DocumentWindow {
   public:
     using BufferPointer = uint8_t*;
 
-    LightWindow();
-    ~LightWindow() = default;
+    // The MessageManagerQueue must be locked for these next four methods.
+    UnlockedLightWindow();
+    ~UnlockedLightWindow() = default;
 
-    // All methods must be called on the message manager thread.
-    void paint(Graphics& g) override;
     void setDesc(LightWindowDesc);
-    void setLights(size_t width, size_t height, BufferPointer* p = nullptr);
+    void setLights(size_t width, size_t height, BufferPointer p = nullptr);
 
-    BufferPointer bufferPointer() { return bufferPointer_; }
-
-    /** Returns an error, otherwise an empty string if all went well. */
-    std::string saveSnapshotToFile(std::string const& filename);
+    /** Called only by JUCE. */
+    void paint(Graphics& g) override;
 
   private:
     size_t width_, height_;
-    LightWindowDesc desc;
+    LightWindowDesc desc_;
     BufferPointer bufferPointer_;
     std::vector<uint8_t> buffer_;
 
@@ -33,6 +30,24 @@ class LightWindow : DocumentWindow {
     using Lock = std::unique_lock<Mutex>;
 
     Mutex mutex_;
+};
+
+/** Encapsulates an UnlockedLightWindow and properly locks the
+    MessageManagerQueue. */
+class LightWindow {
+  public:
+    using BufferPointer = UnlockedLightWindow::BufferPointer;
+
+    LightWindow();
+    ~LightWindow();
+
+    void setDesc(LightWindowDesc);
+    void setLights(size_t width, size_t height, BufferPointer p = nullptr);
+
+    void saveSnapshotToFile(std::string const& filename);
+
+  private:
+    std::unique_ptr<UnlockedLightWindow> impl_;
 };
 
 }  // namespace timedata

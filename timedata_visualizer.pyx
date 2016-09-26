@@ -10,6 +10,7 @@ include "src/timedata_visualizer/base/wrapper.pyx"
 include "src/timedata_visualizer/juce/JApplication.pyx"
 
 include "build/genfiles/timedata_visualizer/genfiles.pyx"
+include "src/timedata_visualizer/component/LightWindow.pyx"
 
 
 print_startup_message()

@@ -6,6 +6,7 @@ struct LightWindowDesc {
     enum class Shape { rect, ellipse };
     enum class Label { none, letter, number };
 
+    std::string name;
     Shape shape;
     Label label;
 
