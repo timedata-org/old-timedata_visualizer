@@ -5,7 +5,28 @@
 
 namespace timedata {
 
+class LightComponent : public Component {
+  public:
+    // The MessageManagerQueue must be locked for all methods.
+    LightComponent() = default;
+    ~LightComponent() = default;
+
+    void setDesc(LightWindowDesc);
+    void setLights(size_t width, size_t height, BufferPointer p = nullptr);
+    void paint(Graphics& g) override;
+    BufferPointer bufferPointer() { return bufferPointer_; }
+
+  private:
+    size_t width_, height_;
+    LightWindowDesc desc_;
+    BufferPointer bufferPointer_;
+    std::vector<uint8_t> buffer_;
+
+    Mutex mutex_;
+};
+
 inline void LightComponent::paint(Graphics& g) {
+    std::cerr << "PAINT!!!\n";
     auto bounds = getLocalBounds().reduced(desc_.windowPadding).toFloat();
     auto wtile = bounds.getWidth() / width_;
     auto htile = bounds.getHeight() / height_;
@@ -17,14 +38,15 @@ inline void LightComponent::paint(Graphics& g) {
     g.fillAll(Colours::black);
 
     for (size_t i = 0, cp = 0; i < height_; ++i) {
-        relative.setY(instrument.getY() + i * tile.getY());
+        relative.setY(instrument.getY() + i * tile.getHeight());
         for (size_t j = 0; j < width_; ++j) {
             auto red = bp[cp++];
             auto green = bp[cp++];
             auto blue = bp[cp++];
             auto colour = Colour(red, green, blue);
+            std::cerr << int(red) << ',' << int(green) << ',' << int(blue) << '\n';
             g.setColour(colour);
-            relative.setX(instrument.getX() + j * tile.getX());
+            relative.setX(instrument.getX() + j * tile.getWidth());
 
             if (desc_.shape == LightWindowDesc::Shape::rect)
                 g.fillRect(relative);
@@ -33,7 +55,7 @@ inline void LightComponent::paint(Graphics& g) {
 
             if (desc_.label != LightWindowDesc::Label::none) {
                 g.setColour(colour.contrasting());
-                auto n = i * width_ + j + 1;
+                auto n = cp + 1;
                 auto isNumber = (desc_.label == LightWindowDesc::Label::number);
                 auto text = isNumber ? std::to_string(n) : toCharString(n);
                 relative.reduce(desc_.labelPadding, desc_.labelPadding);
@@ -57,7 +79,7 @@ inline void LightComponent::setLights(size_t width, size_t height,
     if (bp) {
         bufferPointer_ = bp;
     } else {
-        auto size = width * height;
+        auto size = 3 * width * height;
         if (buffer_.size() < size)
             buffer_.resize(size);
         bufferPointer_ = &buffer_.front();
@@ -106,6 +128,11 @@ inline void LightWindow::setLights(
 
 void LightWindow::writeSnapshotToFile(std::string const& filename) {
     timedata::writeSnapshotToFile(filename, impl_->comp);
+}
+
+BufferPointer LightWindow::bufferPointer() {
+    MessageManagerLock mml;
+    return impl_->comp.bufferPointer();
 }
 
 } // timedata

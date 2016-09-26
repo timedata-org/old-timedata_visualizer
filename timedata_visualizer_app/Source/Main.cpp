@@ -8,9 +8,13 @@
   ==============================================================================
 */
 
+#include <random>
+
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "MainComponent.h"
+#include <timedata_visualizer/component/LightWindow_inl.h>
 
+using namespace timedata;
 
 //==============================================================================
 class timedata_visualizer_appApplication  : public JUCEApplication
@@ -60,16 +64,37 @@ public:
     */
     class MainWindow    : public DocumentWindow
     {
+#ifndef USE_DEMO_COMPONENT
+        LightComponent component_;
+#endif
     public:
         MainWindow (String name)  : DocumentWindow (name,
                                                     Colours::lightgrey,
                                                     DocumentWindow::allButtons)
         {
             setUsingNativeTitleBar (true);
-            setContentOwned (new MainContentComponent(), true);
-
+            setResizable(true, true);
+            addContent();
             centreWithSize (getWidth(), getHeight());
             setVisible (true);
+        }
+
+        void addContent() {
+#ifdef USE_DEMO_COMPONENT
+            setContentOwned (new MainContentComponent(), true);
+#else
+            setContentNonOwned (&component_, false);
+            size_t width = 2, height = 2;
+            component_.setLights(width, height);
+            auto bp = component_.bufferPointer();
+            std::default_random_engine generator;
+            std::uniform_int_distribution<uint8_t> random;
+            for (size_t i = 0; i < 3 * width * height; ++i) {
+                auto rg = random(generator);
+                std::cerr << "random " << (int) rg << '\n';
+                bp[i] = rg;
+            }
+#endif
         }
 
         void closeButtonPressed() override
