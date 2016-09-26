@@ -1,23 +1,20 @@
 #pragma once
 
-#include <mutex>
-
+#include <timedata_visualizer/base/lock.h>
 #include <timedata_visualizer/component/LightWindowDesc.h>
 
 namespace timedata {
 
-class UnlockedLightWindow : public DocumentWindow {
+class LightComponent : public Component {
   public:
     using BufferPointer = uint8_t*;
 
-    // The MessageManagerQueue must be locked for these next four methods.
-    UnlockedLightWindow();
-    ~UnlockedLightWindow() = default;
+    // The MessageManagerQueue must be locked for all methods.
+    LightComponent() = default;
+    ~LightComponent() = default;
 
     void setDesc(LightWindowDesc);
     void setLights(size_t width, size_t height, BufferPointer p = nullptr);
-
-    /** Called only by JUCE. */
     void paint(Graphics& g) override;
 
   private:
@@ -26,28 +23,26 @@ class UnlockedLightWindow : public DocumentWindow {
     BufferPointer bufferPointer_;
     std::vector<uint8_t> buffer_;
 
-    using Mutex = std::mutex;
-    using Lock = std::unique_lock<Mutex>;
-
     Mutex mutex_;
 };
 
-/** Encapsulates an UnlockedLightWindow and properly locks the
+/** Encapsulates an LightComponent and properly locks the
     MessageManagerQueue. */
 class LightWindow {
   public:
-    using BufferPointer = UnlockedLightWindow::BufferPointer;
+    using BufferPointer = LightComponent::BufferPointer;
 
     LightWindow();
     ~LightWindow();
 
     void setDesc(LightWindowDesc);
     void setLights(size_t width, size_t height, BufferPointer p = nullptr);
-
-    void saveSnapshotToFile(std::string const& filename);
+    void writeSnapshotToFile(std::string const& filename);
 
   private:
-    std::unique_ptr<UnlockedLightWindow> impl_;
+    struct Impl;
+
+    std::unique_ptr<Impl> impl_;
 };
 
 }  // namespace timedata

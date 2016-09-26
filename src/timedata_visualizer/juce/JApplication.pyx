@@ -17,8 +17,10 @@ _TIMEOUT = 0.1
 # master process.
 _FROM_JUCE = None
 
+
 cdef void _send_from_juce(string s) with gil:
     _FROM_JUCE.put(s)
+
 
 cpdef _forward_to_juce(q):
     while True:
@@ -60,12 +62,12 @@ class JuceApplication(object):
         self.to_juce, self.from_juce = args
         self.process = ctx.Process(target=juce_application, args=args)
         self.start = self.process.start
+        self.running = True
 
     def __del__(self):
         quit()
 
     def quit(self):
-        to_juce = None
-        to_juce, self.to_juce = self.to_juce, to_juce
-        if to_juce:
-            to_juce.put('quit')
+        if self.running:
+            self.running = False
+            self.to_juce.put('quit')

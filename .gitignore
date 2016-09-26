@@ -1,5 +1,7 @@
 TAGS
 Builds
+timedata_visualizer_app/Builds
+
 .DS_Store
 timedata_visualizer.cpp
 *.html

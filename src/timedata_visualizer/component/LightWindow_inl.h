@@ -1,30 +1,11 @@
 #include <timedata_visualizer/component/LightWindow.h>
 #include <timedata_visualizer/base/make_unique.h>
+#include <timedata_visualizer/base/string.h>
+#include <timedata_visualizer/component/snapshot.h>
 
 namespace timedata {
 
-inline UnlockedLightWindow::UnlockedLightWindow()
-        : DocumentWindow("(not set)", Colours::black, allButtons) {
-    setUsingNativeTitleBar(true);
-    toFront(true);
-    setVisible(true);
-}
-
-inline std::string toCharString(size_t n) {
-    std::string result;
-    while (n) {
-        result += ('a' + n % 26);
-        n /= 26;
-    }
-
-    if (result.empty())
-        result += 'a';
-    else
-        std::reverse(result.begin(), result.end());
-    return result;
-}
-
-inline void UnlockedLightWindow::paint(Graphics& g) {
+inline void LightComponent::paint(Graphics& g) {
     auto bounds = getLocalBounds().reduced(desc_.windowPadding).toFloat();
     auto wtile = bounds.getWidth() / width_;
     auto htile = bounds.getHeight() / height_;
@@ -63,14 +44,13 @@ inline void UnlockedLightWindow::paint(Graphics& g) {
     }
 }
 
-inline void UnlockedLightWindow::setDesc(LightWindowDesc d) {
+inline void LightComponent::setDesc(LightWindowDesc d) {
     desc_ = d;
-    setName(desc_.name);
     repaint();
 }
 
-inline void UnlockedLightWindow::setLights(size_t width, size_t height,
-                                           BufferPointer bp) {
+inline void LightComponent::setLights(size_t width, size_t height,
+                                      BufferPointer bp) {
     width_ = width;
     height_ = height;
 
@@ -85,9 +65,26 @@ inline void UnlockedLightWindow::setLights(size_t width, size_t height,
     repaint();
 }
 
+struct LightWindow::Impl : DocumentWindow {
+    LightComponent comp;
+
+    Impl() : DocumentWindow("(not set)", Colours::black, allButtons) {
+        setContentNonOwned(&comp, false);
+        setUsingNativeTitleBar(true);
+        toFront(true);
+        setVisible(true);
+    }
+
+    void closeButtonPressed() override {
+        // TODO - send a message.
+        JUCEApplication::getInstance()->systemRequestedQuit();
+    }
+};
+
+
 inline LightWindow::LightWindow() {
     MessageManagerLock mml;
-    impl_ = std::make_unique<UnlockedLightWindow>();
+    impl_ = std::make_unique<Impl>();
 }
 
 inline LightWindow::~LightWindow() {
@@ -97,28 +94,18 @@ inline LightWindow::~LightWindow() {
 
 inline void LightWindow::setDesc(LightWindowDesc desc) {
     MessageManagerLock mml;
-    impl_->setDesc(desc);
+    impl_->setName(desc.name);
+    impl_->comp.setDesc(desc);
 }
 
 inline void LightWindow::setLights(
         size_t width, size_t height, BufferPointer bp) {
     MessageManagerLock mml;
-    impl_->setLights(width, height, bp);
+    impl_->comp.setLights(width, height, bp);
 }
 
-inline void LightWindow::saveSnapshotToFile(std::string const& name) {
-    File file(name);
-    if (auto format = ImageFileFormat::findImageFormatForFileExtension(file)) {
-        FileOutputStream stream(file);
-        auto getImage = [&]() {
-            MessageManagerLock mml;
-            return impl_->createComponentSnapshot(impl_->getLocalBounds());
-        };
-        if (not format->writeImageToStream(getImage(), stream))
-            std::cerr << "Unable to write to filename " << name;
-    } else {
-        std::cerr << "Don't understand filename " << name;
-    }
+void LightWindow::writeSnapshotToFile(std::string const& filename) {
+    timedata::writeSnapshotToFile(filename, impl_->comp);
 }
 
 } // timedata
