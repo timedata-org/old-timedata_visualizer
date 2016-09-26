@@ -1,5 +1,7 @@
 #pragma once
 
+#include <JuceHeader.h>
+
 namespace timedata {
 
 inline Image getSnapshot(Component& comp) {
