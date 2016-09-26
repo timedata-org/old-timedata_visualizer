@@ -26,7 +26,6 @@ class LightComponent : public Component {
 };
 
 inline void LightComponent::paint(Graphics& g) {
-    std::cerr << "PAINT!!!\n";
     auto bounds = getLocalBounds().reduced(desc_.windowPadding).toFloat();
     auto wtile = bounds.getWidth() / width_;
     auto htile = bounds.getHeight() / height_;
@@ -44,7 +43,6 @@ inline void LightComponent::paint(Graphics& g) {
             auto green = bp[cp++];
             auto blue = bp[cp++];
             auto colour = Colour(red, green, blue);
-            std::cerr << int(red) << ',' << int(green) << ',' << int(blue) << '\n';
             g.setColour(colour);
             relative.setX(instrument.getX() + j * tile.getWidth());
 
