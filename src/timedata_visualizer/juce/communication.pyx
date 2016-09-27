@@ -26,9 +26,7 @@ def _route_message_to_juce(object msg, object manager):
 
 @_route_message_to_juce.register(_LightWindowDesc)
 def _(_LightWindowDesc desc, object manager):
-    cdef _LightWindow lw = _LightWindow()
-    lw.set_desc(desc)
-
+    _FROM_JUCE(manager.LightWindowProxy(desc))
 
 
 @_route_message_to_juce.register(str)

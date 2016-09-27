@@ -6,7 +6,7 @@ namespace timedata {
 inline void LightComponent::paint(Graphics& g) {
     g.fillAll(Colours::black);
 
-    if (not (width_ and height_))
+    if (not (width_ and height_ and bufferPointer_))
         return;
 
     auto bounds = getLocalBounds().reduced(desc_.windowPadding).toFloat();
