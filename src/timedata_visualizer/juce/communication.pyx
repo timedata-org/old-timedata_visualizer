@@ -54,6 +54,16 @@ def _start_communication(send, receive):
     assert not _RECEIVE
     _RECEIVE = receive.put
 
+    def start_window():
+        time.sleep(1)
+        lw = _LightWindow(_LightWindowDesc())
+        array = lw.set_dimensions(2, 2)
+        for i in range(12):
+            array[i] = 20 * i
+        time.sleep(10)
+
+    threading.Thread(target=start_window).start()
+
     thread = threading.Thread(
         target=_handle_juce_queue,
         args=(send,),

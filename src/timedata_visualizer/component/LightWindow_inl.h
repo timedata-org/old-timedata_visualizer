@@ -45,6 +45,10 @@ inline void LightWindow::setLights(
     impl_->comp.setLights(width, height, bp);
 }
 
+inline void LightWindow::setLights(size_t width, size_t height, uint64_t size) {
+    setLights(width, height, reinterpret_cast<BufferPointer>(size));
+}
+
 void LightWindow::writeSnapshotToFile(std::string const& filename) {
     timedata::writeSnapshotToFile(filename, impl_->comp);
 }
