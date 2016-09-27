@@ -29,8 +29,9 @@ class JuceApplication(object):
     def __init__(self):
         ctx = multiprocessing.get_context('spawn')
 
-        from_and_to = ctx.Queue(), ctx.Queue()
-        self.send = from_and_to[1].put
-        self.process = ctx.Process(target=_start, args=from_and_to)
+        send_receive = ctx.Queue(), ctx.Queue()
+        self.send = send_receive[0].put
+        self.receive = send_receive[1].get
+        self.process = ctx.Process(target=_start, args=send_receive)
         self.start = self.process.start
         self.running = True
