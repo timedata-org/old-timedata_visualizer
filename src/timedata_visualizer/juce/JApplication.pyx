@@ -31,6 +31,6 @@ class JuceApplication(object):
 
         from_and_to = ctx.Queue(), ctx.Queue()
         self.send = from_and_to[1].put
-        self.process = ctx.Process(target=_start, args=from_and_to, daemon=True)
+        self.process = ctx.Process(target=_start, args=from_and_to)
         self.start = self.process.start
         self.running = True

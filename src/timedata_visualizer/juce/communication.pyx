@@ -7,7 +7,7 @@ cdef extern from "<timedata_visualizer/juce/JApplication_inl.h>" namespace "time
 class JuceManager(multiprocessing.managers.BaseManager):
     pass
 
-
+JuceManager.register('LightWindowProxy', _LightWindow)
 
 # _FROM_JUCE has to be a global variable so that _send_from_juce can be
 # a pure C function.  This gets assigned in each Juce process, but not in the
@@ -20,19 +20,19 @@ cdef void _send_from_juce(string s) with gil:
 
 
 @functools.singledispatch
-def _route_message_to_juce(msg):
+def _route_message_to_juce(object msg, object manager):
     raise TypeError('Don\'t understand %s' % msg)
 
 
 @_route_message_to_juce.register(_LightWindowDesc)
-def _(_LightWindowDesc desc):
+def _(_LightWindowDesc desc, object manager):
     cdef _LightWindow lw = _LightWindow()
     lw.set_desc(desc)
 
 
 
 @_route_message_to_juce.register(str)
-def _(string s):
+def _(string s, object manager):
     if s == b'quit':
         quitJuceApplication()
     else:
@@ -40,12 +40,13 @@ def _(string s):
 
 
 cpdef _handle_juce_queue(q):
-    while True:
-        try:
-            item = q.get(timeout=_TIMEOUT)
-        except queue.Empty:
-            continue
-        _route_message_to_juce(item)
+    with JuceManager() as manager:
+        while True:
+            try:
+                item = q.get(timeout=_TIMEOUT)
+            except queue.Empty:
+                continue
+            _route_message_to_juce(item, manager)
 
 
 def _start_communication(from_juce, to_juce):
