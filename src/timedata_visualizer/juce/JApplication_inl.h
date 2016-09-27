@@ -53,11 +53,4 @@ inline void callTimedata(std::string const& s) {
     globalCallback()(s.c_str());
 }
 
-inline void receiveMessageToJuce(std::string const& s) {
-    if (s == "quit") {
-        std::cerr << "quit message\n";
-        quitJuceApplication();
-    }
-}
-
 } // timedata

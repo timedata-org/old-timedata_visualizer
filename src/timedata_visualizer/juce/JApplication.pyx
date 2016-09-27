@@ -4,7 +4,6 @@ ctypedef void (*StringCaller)(string)
 
 cdef extern from "<timedata_visualizer/juce/JApplication_inl.h>" namespace "timedata":
     void startJuceApplication(StringCaller cb) nogil
-    void receiveMessageToJuce(string);
 
 _TIMEOUT = 0.1
 
@@ -31,12 +30,9 @@ class JuceApplication(object):
         ctx = multiprocessing.get_context('spawn')
         args = ctx.Queue(), ctx.Queue()
         self.from_juce, self.to_juce = args
-        self.process = ctx.Process(target=_start, args=args)
+        self.process = ctx.Process(target=_start, args=args, daemon=True)
         self.start = self.process.start
         self.running = True
-
-    def __del__(self):
-        quit()
 
     def quit(self):
         if self.running:

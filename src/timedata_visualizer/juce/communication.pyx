@@ -1,8 +1,7 @@
 import functools, queue
 
 cdef extern from "<timedata_visualizer/juce/JApplication_inl.h>" namespace "timedata":
-    void receiveMessageToJuce(string);
-
+    void quitJuceApplication()
 
 # _FROM_JUCE has to be a global variable so that perform_string_callback can be
 # a pure C function.  This only gets assigned in a Juce process, not in the
@@ -18,15 +17,18 @@ def _route_message_to_juce(msg):
     raise TypeError('Don\'t understand %s' % msg)
 
 
-@_route_message_to_juce.register(str)
-def _(string msg):
-    receiveMessageToJuce(msg)
-
-
 @_route_message_to_juce.register(_LightWindowDesc)
 def _(_LightWindowDesc desc):
     cdef _LightWindow lw = _LightWindow()
     lw.set_desc(desc)
+
+
+@_route_message_to_juce.register(str)
+def _(string s):
+    if s == b'quit':
+        quitJuceApplication()
+    else:
+        raise ValueError('Don\'t understand message %s' % s)
 
 
 cpdef _handle_juce_queue(q):
