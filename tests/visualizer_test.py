@@ -5,8 +5,9 @@ import timedata_visualizer
 def start_and_stop():
     app = timedata_visualizer.JuceApplication()
     app.start()
-    time.sleep(10)
-    app.quit()
+    time.sleep(3)
+    # works fine without this, but want to make sure it stays up.
+    app.send('quit')
 
 
 class TestVisualizer(unittest.TestCase):

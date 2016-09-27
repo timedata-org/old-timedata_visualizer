@@ -28,13 +28,9 @@ cpdef _start(from_juce, to_juce):
 class JuceApplication(object):
     def __init__(self):
         ctx = multiprocessing.get_context('spawn')
-        args = ctx.Queue(), ctx.Queue()
-        self.from_juce, self.to_juce = args
-        self.process = ctx.Process(target=_start, args=args, daemon=True)
+
+        from_and_to = ctx.Queue(), ctx.Queue()
+        self.send = from_and_to[1].put
+        self.process = ctx.Process(target=_start, args=from_and_to, daemon=True)
         self.start = self.process.start
         self.running = True
-
-    def quit(self):
-        if self.running:
-            self.running = False
-            self.to_juce.put('quit')
