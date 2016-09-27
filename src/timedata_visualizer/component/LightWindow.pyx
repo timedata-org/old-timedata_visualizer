@@ -7,7 +7,10 @@ cdef extern from "timedata_visualizer/component/LightWindow_inl.h" namespace "ti
 
 
 cdef class _LightWindow:
-    cdef LightWindow cdata;
+    cdef LightWindow cdata
+
+    def __init__(self, _LightWindowDesc desc):
+        self.cdata.setDesc(desc.cdata)
 
     cpdef void set_desc(self, _LightWindowDesc desc):
         self.cdata.setDesc(desc.cdata)

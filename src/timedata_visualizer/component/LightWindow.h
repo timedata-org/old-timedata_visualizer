@@ -1,6 +1,7 @@
 #pragma once
 
-#include <timedata_visualizer/base/lock.h>
+#include <memory>
+#include <string>
 #include <timedata_visualizer/component/LightWindowDesc.h>
 
 namespace timedata {
@@ -11,7 +12,7 @@ using BufferPointer = uint8_t*;
     MessageManagerQueue. */
 class LightWindow {
   public:
-    LightWindow();
+    explicit LightWindow();
     ~LightWindow();
 
     void setDesc(LightWindowDesc);

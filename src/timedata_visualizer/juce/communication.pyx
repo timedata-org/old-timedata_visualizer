@@ -1,15 +1,22 @@
-import functools, queue
+import functools, queue, multiprocessing.managers
 
 cdef extern from "<timedata_visualizer/juce/JApplication_inl.h>" namespace "timedata":
     void quitJuceApplication()
 
-# _FROM_JUCE has to be a global variable so that perform_string_callback can be
-# a pure C function.  This only gets assigned in a Juce process, not in the
+
+class JuceManager(multiprocessing.managers.BaseManager):
+    pass
+
+
+
+# _FROM_JUCE has to be a global variable so that _send_from_juce can be
+# a pure C function.  This gets assigned in each Juce process, but not in the
 # master process.
 _FROM_JUCE = None
 
+
 cdef void _send_from_juce(string s) with gil:
-    _FROM_JUCE.put(s)
+    _FROM_JUCE(s)
 
 
 @functools.singledispatch
@@ -21,6 +28,7 @@ def _route_message_to_juce(msg):
 def _(_LightWindowDesc desc):
     cdef _LightWindow lw = _LightWindow()
     lw.set_desc(desc)
+
 
 
 @_route_message_to_juce.register(str)
@@ -45,7 +53,7 @@ def _start_communication(from_juce, to_juce):
     # but you must have started it with 'spawn'.
     global _FROM_JUCE
     assert not _FROM_JUCE
-    _FROM_JUCE = from_juce
+    _FROM_JUCE = from_juce.put
 
     thread = threading.Thread(
         target=_handle_juce_queue,
