@@ -12,6 +12,6 @@ include "build/genfiles/timedata_visualizer/genfiles.pyx"
 include "src/timedata_visualizer/component/LightWindow.pyx"
 include "src/timedata_visualizer/juce/communication.pyx"
 include "src/timedata_visualizer/juce/JApplication.pyx"
-
+include "src/timedata_visualizer/juce/proxy.pyx"
 
 print_startup_message()

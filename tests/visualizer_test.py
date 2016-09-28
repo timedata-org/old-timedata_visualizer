@@ -7,7 +7,7 @@ def start_and_stop():
     app.start()
     time.sleep(3)
     # works fine without this, but want to make sure it stays up.
-    app.send('quit')
+    app.send.put('quit')
 
 
 class TestVisualizer(unittest.TestCase):

@@ -20,10 +20,8 @@ inline void LightComponent::paint(Graphics& g) {
     for (size_t i = 0, cp = 0; i < height_; ++i) {
         relative.setY(instrument.getY() + i * tile.getHeight());
         for (size_t j = 0; j < width_; ++j) {
-            auto red = bp[cp++];
-            auto green = bp[cp++];
-            auto blue = bp[cp++];
-            auto colour = Colour(red, green, blue);
+            auto colour = Colour(bp[cp], bp[cp + 1], bp[cp + 2]);
+            cp += 3;
             g.setColour(colour);
             relative.setX(instrument.getX() + j * tile.getWidth());
 
