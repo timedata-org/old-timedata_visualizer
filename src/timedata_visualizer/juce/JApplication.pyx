@@ -6,8 +6,6 @@ ctypedef void (*StringCaller)(string)
 cdef extern from "<timedata_visualizer/juce/JApplication_inl.h>" namespace "timedata":
     void startJuceApplication(StringCaller cb) nogil
 
-_TIMEOUT = 0.1
-
 
 cpdef void start_juce_application():
     print('About to start JUCE application.')

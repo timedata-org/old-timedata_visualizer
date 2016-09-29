@@ -10,9 +10,10 @@ def start_and_stop():
         for i in range(len(app.memory)):
             app.memory[i] = random.randrange(0, 256)
 
+        print('iteration')
         proxy.repaint()
 
-    time.sleep(3)
+    time.sleep(100)
     # works fine without this, but want to make sure it stays up.
     app.quit()
 
