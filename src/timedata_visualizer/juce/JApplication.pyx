@@ -39,11 +39,11 @@ class JuceApplication(object):
         self._send, self._receive, self.memory = send, receive, memory
 
     def send(self, token, method, *args, **kwds):
-        print('JuceApplication:send')
+        #print('JuceApplication:send')
         self._send.put((token, method, args, kwds))
-        print('JuceApplication:receive')
+        #print('JuceApplication:receive')
         result = self._receive.get()
-        print('JuceApplication:result', result)
+        #print('JuceApplication:result', result)
         return result
 
     def proxy(self, cls, *args, **kwds):

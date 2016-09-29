@@ -23,6 +23,7 @@ inline void LightComponent::paint(Graphics& g) {
             auto colour = Colour(bp[cp], bp[cp + 1], bp[cp + 2]);
             cp += 3;
             g.setColour(colour);
+            // std::cerr << i << ", " << j << ": " << colour.toString() << "\n";
             relative.setX(instrument.getX() + j * tile.getWidth());
 
             if (desc_.shape == LightWindowDesc::Shape::rect)

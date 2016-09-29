@@ -6,7 +6,7 @@ namespace timedata {
 class LightComponent : public Component {
   public:
     // The MessageManagerQueue must be locked for all methods.
-    LightComponent() = default;
+    LightComponent() : desc_{0} {}
     ~LightComponent() = default;
 
     void setDesc(LightWindowDesc);

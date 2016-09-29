@@ -3,6 +3,7 @@ import multiprocessing.managers
 class ProcessGlobal(object):
     """This class is a singleton whose values are assigned in each subprocess.
     """
+
     def start(self, send, receive, memory):
         self.send = send
         self.receive = receive
@@ -38,13 +39,17 @@ class ProcessGlobal(object):
 
     def _run(self):
         while True:
+            #print('ProcessGlobal::about to get')
             token, method, args, kwds = self.send.get()
+            #print('ProcessGlobal::got')
             try:
                 result = method(token and self.objects[token], *args, **kwds)
             except Exception as e:
                 result = 'Exception %s for "%s"' % (
                     e, (token, method, args, kwds))
+            #print('ProcessGlobal::about to put')
             self.receive.put(result)
+            #print('ProcessGlobal::put done')
 
 
 _PROCESS = ProcessGlobal()
