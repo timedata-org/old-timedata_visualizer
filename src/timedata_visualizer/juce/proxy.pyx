@@ -1,6 +1,6 @@
 class Proxy(object):
-    def __init__(self, app, cls):
-        token = app.send(cls)
+    def __init__(self, app, cls, *args, **kwds):
+        token = app.send((None, cls, args, kwds))
 
         # Add a proxy method for each method in the class.
         def proxy(method):

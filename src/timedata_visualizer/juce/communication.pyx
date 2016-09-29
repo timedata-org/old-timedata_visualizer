@@ -13,40 +13,41 @@ cdef void _send_from_juce(string s) with gil:
     _RECEIVE.put(s)
 
 
-def _route_message_to_juce(msg, objects):
-    try:
-        if msg == b'quit' or msg == 'quit':
-            print('! quit')
-            quitJuceApplication()
+def _start_communication(send, receive):
+    global _RECEIVE
+    _RECEIVE = receive
+    objects = {}
 
-        elif callable(msg):
+    def run():
+        while True:
+            receive.put(route(send.get()))
+
+    def route(msg):
+        try:
+            if msg == b'quit' or msg == 'quit':
+                print('! quit')
+                quitJuceApplication()
+                return
+
+            token, method, args, kwds = msg
+            if token is not None:
+                print('!method call')
+                result = method(objects[token], *args, **kwds)
+                print('!method call done', result)
+                return result
+
             print('! new object')
             # We're creating a new class instance!
             token = len(objects)
             while token in objects:
                 token += 1
-            print('! new object', token)
-            objects[token] = msg()
-
-            print('! new object DONE')
+            objects[token] = method()
             return token
 
-        else:
-            print('!method call')
-            token, method, args, kwds = msg
-            return method(objects[token], *args, **kwds)
+        except Exception as e:
+            if True:
+                raise
+            return 'Exception %s for "%s"' % (e, msg)
 
-    except Exception as e:
-        return 'Don\'t understand message %s (%s)' % (msg, e)
-
-
-def _start_communication(send, receive):
-    global _RECEIVE
-    _RECEIVE = receive
-
-    def run():
-        objects = {}
-        while True:
-            receive.put(_route_message_to_juce(send.get(), objects))
 
     threading.Thread(target=run, daemon=True).start()
