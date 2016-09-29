@@ -1,4 +1,5 @@
-import functools, multiprocessing, queue, time, threading, traceback
+import ctypes, functools, multiprocessing, multiprocessing.sharedctypes
+import queue, time, threading, traceback
 
 ctypedef void (*StringCaller)(string)
 
@@ -8,7 +9,7 @@ cdef extern from "<timedata_visualizer/juce/JApplication_inl.h>" namespace "time
 _TIMEOUT = 0.1
 
 
-cpdef start_juce_application():
+cpdef void start_juce_application():
     print('About to start JUCE application.')
     # This must be run on the main thread.  You can run it in a multiprocess,
     # but you must have started it with 'spawn'.
@@ -20,35 +21,35 @@ cpdef start_juce_application():
     print('JUCE application has shut down.')
 
 
-cpdef _start_process(from_juce, to_juce):
-    _start_communication(from_juce, to_juce)
+def _juce_process(*args):
+    _PROCESS.start(*args)
     start_juce_application()
 
 
-_MP_CONTEXT = multiprocessing.get_context('spawn')
-_Queue = _MP_CONTEXT.Queue
-_Process = _MP_CONTEXT.Process
-
-
 class JuceApplication(object):
-    def __init__(self):
-        send, receive = _Queue(), _Queue()
-        _Process(target=_start_process, args=(send, receive)).start()
+    def __init__(self, size=1048576):
+        ctx = multiprocessing.get_context('spawn')
+
+        send = ctx.Queue()
+        receive = ctx.Queue()
+        memory = multiprocessing.sharedctypes.RawArray(ctypes.c_uint8, size)
+
+        ctx.Process(target=_juce_process, args=(send, receive, memory)).start()
         result = receive.get()
         assert result == b'{"event":"start"}', str(result)
 
-        self._send, self._receive = send, receive
+        self._send, self._receive, self.memory = send, receive, memory
 
-    def send(self, x):
+    def send(self, token, method, *args, **kwds):
         print('JuceApplication:send')
-        self._send.put(x)
+        self._send.put((token, method, args, kwds))
         print('JuceApplication:receive')
         result = self._receive.get()
         print('JuceApplication:result', result)
         return result
 
-    def quit(self):
-        self.send('quit')
+    def proxy(self, cls, *args, **kwds):
+        return Proxy(self, cls, *args, **kwds)
 
-    def proxy(self, cls):
-        return Proxy(self, cls)
+    def quit(self):
+        self.send(None, quit_juce_application)

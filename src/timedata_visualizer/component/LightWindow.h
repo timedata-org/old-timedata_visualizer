@@ -19,6 +19,7 @@ class LightWindow {
     void setLights(size_t width, size_t height, BufferPointer p = nullptr);
     void setLights(size_t width, size_t height, uint64_t size);
     void writeSnapshotToFile(std::string const& filename);
+    void repaint();
     BufferPointer bufferPointer();
 
   private:

@@ -58,4 +58,9 @@ BufferPointer LightWindow::bufferPointer() {
     return impl_->comp.bufferPointer();
 }
 
+void LightWindow::repaint() {
+    MessageManagerLock mml;
+    impl_->repaint();
+}
+
 } // timedata

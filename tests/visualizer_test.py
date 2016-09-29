@@ -4,15 +4,17 @@ import timedata_visualizer
 
 def start_and_stop():
     app = timedata_visualizer.JuceApplication()
-    window = app.proxy(timedata_visualizer.LightWindow)
-    array = window.set_dimensions(2, 2)
+    proxy = app.proxy(timedata_visualizer.LightWindow, 2, 2)
 
-    for i in range(12):
-        array[i] = random.randrange(0, 256)
+    while True:
+        for i in range(len(app.memory)):
+            app.memory[i] = random.randrange(0, 256)
+
+        proxy.repaint()
 
     time.sleep(3)
     # works fine without this, but want to make sure it stays up.
-    app.send.put('quit')
+    app.quit()
 
 
 class TestVisualizer(unittest.TestCase):
