@@ -13,33 +13,40 @@ cdef void _send_from_juce(string s) with gil:
     _RECEIVE.put(s)
 
 
-def _route_message_to_juce(object s):
-    if s == b'quit' or s == 'quit':
-        quitJuceApplication()
-        return
+def _route_message_to_juce(msg, objects):
     try:
-        # We're creating a new class instance!
-        cls, send, receive = s
-        juce_object = cls()
+        if msg == b'quit' or msg == 'quit':
+            print('! quit')
+            quitJuceApplication()
 
-        def route():
-            while True:
-                method, args, kwds = send.get()
-                receive.put(method(juce_object, *args, **kwds))
+        elif callable(msg):
+            print('! new object')
+            # We're creating a new class instance!
+            token = len(objects)
+            while token in objects:
+                token += 1
+            print('! new object', token)
+            objects[token] = msg()
 
-        threading.Thread(target=route, daemon=True).start()
+            print('! new object DONE')
+            return token
+
+        else:
+            print('!method call')
+            token, method, args, kwds = msg
+            return method(objects[token], *args, **kwds)
 
     except Exception as e:
-        print('Don\'t understand message %s (%s)' % (s, e))
+        return 'Don\'t understand message %s (%s)' % (msg, e)
 
 
 def _start_communication(send, receive):
     global _RECEIVE
-    assert not _RECEIVE
     _RECEIVE = receive
 
-    def route():
+    def run():
+        objects = {}
         while True:
-            receive.put(_route_message_to_juce(send.get()))
+            receive.put(_route_message_to_juce(send.get(), objects))
 
-    threading.Thread(target=route, daemon=True).start()
+    threading.Thread(target=run, daemon=True).start()

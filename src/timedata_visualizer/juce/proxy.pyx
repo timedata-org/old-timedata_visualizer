@@ -1,18 +1,11 @@
 class Proxy(object):
     def __init__(self, app, cls):
-        # Make a pair of queues just for this proxy.
-        send, receive = _make_queues()
+        token = app.send(cls)
 
-        # Send the class and queues to the remote app and wait for the result.
-        app.send.put((cls, send, receive))
-        result = app.receive.get()
-        assert result is None
-
-        # Now add a proxy method for each method in the class.
+        # Add a proxy method for each method in the class.
         def proxy(method):
             def forward(*args, **kwds):
-                send((method, args, kwds))
-                return receive()
+                return app.send((token, method, args, kwds))
             return forward
 
         for k, v in cls.__dict__.items():

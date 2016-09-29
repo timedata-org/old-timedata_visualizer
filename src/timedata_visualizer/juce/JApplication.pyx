@@ -26,19 +26,29 @@ cpdef _start_process(from_juce, to_juce):
 
 
 _MP_CONTEXT = multiprocessing.get_context('spawn')
-
-def _make_queues():
-    # This can probably run more efficiently using mp.Pipe but we can switch
-    # that when we're all done - queues are a well-understood way to handle
-    # concurrency.
-    return _MP_CONTEXT.Queue(), _MP_CONTEXT.Queue()
+_Queue = _MP_CONTEXT.Queue
+_Process = _MP_CONTEXT.Process
 
 
 class JuceApplication(object):
     def __init__(self):
-        send_receive = _make_queues()
-        self.send, self.receive = send_receive
-        self.process = _MP_CONTEXT.Process(
-            target=_start_process, args=send_receive)
-        self.start = self.process.start
-        self.running = True
+        send, receive = _Queue(), _Queue()
+        _Process(target=_start_process, args=(send, receive)).start()
+        result = receive.get()
+        assert result == b'{"event":"start"}', str(result)
+
+        self._send, self._receive = send, receive
+
+    def send(self, x):
+        print('JuceApplication:send')
+        self._send.put(x)
+        print('JuceApplication:receive')
+        result = self._receive.get()
+        print('JuceApplication:result', result)
+        return result
+
+    def quit(self):
+        self.send('quit')
+
+    def proxy(self, cls):
+        return Proxy(self, cls)

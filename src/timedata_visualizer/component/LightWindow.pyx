@@ -12,9 +12,6 @@ cdef class _LightWindow:
     cdef LightWindow cdata
     cdef object array
 
-    def __init__(self, _LightWindowDesc desc):
-        self.cdata.setDesc(desc.cdata)
-
     cpdef void set_desc(self, _LightWindowDesc desc):
         self.cdata.setDesc(desc.cdata)
 
@@ -26,3 +23,6 @@ cdef class _LightWindow:
 
     cpdef void write_snapshot_to_file(self, string name):
         self.cdata.writeSnapshotToFile(name)
+
+
+locals()['LightWindow'] = _LightWindow
