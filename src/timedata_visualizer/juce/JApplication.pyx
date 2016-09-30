@@ -8,7 +8,6 @@ cdef extern from "<timedata_visualizer/juce/JApplication_inl.h>" namespace "time
 
 
 cpdef void start_juce_application():
-    print('About to start JUCE application.')
     # This must be run on the main thread.  You can run it in a multiprocess,
     # but you must have started it with 'spawn'.
     assert threading.current_thread() is threading.main_thread(), (
@@ -16,7 +15,6 @@ cpdef void start_juce_application():
 
     with nogil:
         startJuceApplication(_send_from_juce)
-    print('JUCE application has shut down.')
 
 
 def _juce_process(*args):
@@ -39,15 +37,22 @@ class JuceApplication(object):
         self._send, self._receive, self.memory = send, receive, memory
 
     def send(self, token, method, *args, **kwds):
-        #print('JuceApplication:send')
         self._send.put((token, method, args, kwds))
-        #print('JuceApplication:receive')
-        result = self._receive.get()
-        #print('JuceApplication:result', result)
-        return result
+        return self._receive.get()
 
     def proxy(self, cls, *args, **kwds):
         return Proxy(self, cls, *args, **kwds)
 
     def quit(self):
         self.send(None, quit_juce_application)
+
+    @classmethod
+    def register(cls, proxy_class):
+        def method(self, *args, **kwds):
+            return Proxy(self, proxy_class, *args, **kwds)
+        name = proxy_class.__name__
+        while name.startswith('_'):
+            name = name[1:]
+        setattr(cls, name, method)
+
+JuceApplication.register(_LightWindow)

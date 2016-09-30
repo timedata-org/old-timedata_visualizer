@@ -12,7 +12,7 @@ FRAME_RATE = not False
 def start_and_stop():
     print('SIZE=', SIZE)
     app = timedata_visualizer.JuceApplication(SIZE)
-    proxy = app.proxy(timedata_visualizer.LightWindow, WIDTH, HEIGHT)
+    proxy = app.LightWindow(WIDTH, HEIGHT)
     proxy.set_desc(timedata_visualizer.LightWindowDesc(
         instrumentPadding=1,
         # shape='ellipse',
