@@ -14,7 +14,14 @@ struct LightWindow::Impl : DocumentWindow {
         setUsingNativeTitleBar(true);
         toFront(true);
         setVisible(true);
-        setSize(128 * 6, 96 * 6);
+        setSize(128, 96);
+        setResizable(true, false);
+    }
+
+    void setDesc(LightWindowDesc desc) {
+        setName(desc.name);
+        setBounds(desc.x, desc.y, desc.width, desc.height);
+        comp.setDesc(desc);
     }
 
     void closeButtonPressed() override {
@@ -22,7 +29,6 @@ struct LightWindow::Impl : DocumentWindow {
         JUCEApplication::getInstance()->systemRequestedQuit();
     }
 };
-
 
 inline LightWindow::LightWindow() {
     MessageManagerLock mml;
@@ -36,8 +42,7 @@ inline LightWindow::~LightWindow() {
 
 inline void LightWindow::setDesc(LightWindowDesc desc) {
     MessageManagerLock mml;
-    impl_->setName(desc.name);
-    impl_->comp.setDesc(desc);
+    impl_->setDesc(desc);
 }
 
 inline void LightWindow::setLights(
@@ -46,8 +51,8 @@ inline void LightWindow::setLights(
     impl_->comp.setLights(width, height, bp);
 }
 
-inline void LightWindow::setLights(size_t width, size_t height, uint64_t size) {
-    setLights(width, height, reinterpret_cast<BufferPointer>(size));
+inline void LightWindow::setLights(size_t width, size_t height, uint64_t bp) {
+    setLights(width, height, reinterpret_cast<BufferPointer>(bp));
 }
 
 void LightWindow::writeSnapshotToFile(std::string const& filename) {

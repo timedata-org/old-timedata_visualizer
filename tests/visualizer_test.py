@@ -3,8 +3,8 @@ import random, time, unittest
 import timedata_visualizer
 
 LOOPS = 20
-WIDTH = 128
-HEIGHT = 96
+#WIDTH, HEIGHT = 128, 96
+WIDTH, HEIGHT = 16, 16
 SIZE = (WIDTH * HEIGHT) * 3
 
 FRAME_RATE = not False
@@ -12,11 +12,13 @@ FRAME_RATE = not False
 def start_and_stop():
     print('SIZE=', SIZE)
     app = timedata_visualizer.JuceApplication(SIZE)
-    proxy = app.LightWindow(WIDTH, HEIGHT)
-    proxy.set_desc(timedata_visualizer.LightWindowDesc(
-        instrumentPadding=1,
-        # shape='ellipse',
-        ))
+    window = app.LightWindow(WIDTH, HEIGHT)
+    window.set_desc(
+        width=1280,
+        height=960,
+        instrumentPadding=2,
+        #shape='ellipse',
+        )
     print('LENGTH=', len(app.memory))
 
     base = 0
@@ -26,7 +28,7 @@ def start_and_stop():
     while True:
         app.memory[:] = FRAMES[base]
         base = (base + 1) % len(FRAMES)
-        proxy.repaint()
+        window.repaint()
         # print('iteration', base)
         i += 1
         if not (i % LOOPS):

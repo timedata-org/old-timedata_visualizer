@@ -10,6 +10,8 @@ cdef extern from "timedata_visualizer/component/LightWindow_inl.h" namespace "ti
 
 
 cdef class _LightWindow:
+    DESC = _LightWindowDesc
+
     cdef LightWindow cdata
     cdef size_t _offset
 
@@ -32,6 +34,3 @@ cdef class _LightWindow:
 
     cpdef size_t offset(self):
         return self._offset
-
-
-locals()['LightWindow'] = _LightWindow
