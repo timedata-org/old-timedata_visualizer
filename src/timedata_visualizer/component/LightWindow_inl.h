@@ -14,6 +14,7 @@ struct LightWindow::Impl : DocumentWindow {
         setUsingNativeTitleBar(true);
         toFront(true);
         setVisible(true);
+        setSize(128 * 6, 96 * 6);
     }
 
     void closeButtonPressed() override {

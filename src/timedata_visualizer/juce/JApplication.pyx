@@ -25,7 +25,7 @@ def _juce_process(*args):
 
 
 class JuceApplication(object):
-    def __init__(self, size=1048576):
+    def __init__(self, size):
         ctx = multiprocessing.get_context('spawn')
 
         send = ctx.Queue()

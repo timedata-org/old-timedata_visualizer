@@ -20,7 +20,7 @@ class ProcessGlobal(object):
         result = self.allocated
         if self.allocated + size > len(self.memory):
             raise ValueError('Out of memory: %s', (
-                result, self.allocated, size, len(self.memory)))
+                result, size, len(self.memory)))
         self.allocated += size
         return result
 

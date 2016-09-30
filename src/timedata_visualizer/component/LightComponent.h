@@ -6,7 +6,7 @@ namespace timedata {
 class LightComponent : public Component {
   public:
     // The MessageManagerQueue must be locked for all methods.
-    LightComponent() : desc_{0} {}
+    LightComponent() = default;
     ~LightComponent() = default;
 
     void setDesc(LightWindowDesc);
@@ -16,7 +16,7 @@ class LightComponent : public Component {
 
   private:
     size_t width_, height_;
-    LightWindowDesc desc_;
+    LightWindowDesc desc_ = {};
     BufferPointer bufferPointer_;
     std::vector<uint8_t> buffer_;
 
