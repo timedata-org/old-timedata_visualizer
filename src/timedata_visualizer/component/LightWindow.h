@@ -25,8 +25,9 @@ class LightWindow {
 
   private:
     struct Impl;
-
     std::unique_ptr<Impl> impl_;
+
+    int snapshotIndex_ = 0;
 };
 
 }  // namespace timedata

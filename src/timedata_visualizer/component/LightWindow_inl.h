@@ -57,7 +57,7 @@ inline void LightWindow::setLights(size_t width, size_t height, uint64_t bp) {
 }
 
 void LightWindow::writeSnapshotToFile(std::string const& filename) {
-    timedata::writeSnapshotToFile(filename, impl_->comp);
+    timedata::writeSnapshotToFile(filename, impl_->comp, ++snapshotIndex_);
 }
 
 BufferPointer LightWindow::bufferPointer() {
