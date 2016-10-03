@@ -82,7 +82,7 @@ check_python(FLAGS.minimum_python_version)
 sys.argv = insert_dependencies(sys.argv, **CONFIG.dependencies)
 
 # See: http://goo.gl/1kNY1n
-Cython.Compiler.Options.annotate = True
+# Cython.Compiler.Options.annotate = True
 
 print('About to build targets', *sys.argv[1:])
 setuptools.setup(cmdclass=COMMANDS, **CONFIG.setuptools)

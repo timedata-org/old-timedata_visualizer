@@ -1,8 +1,8 @@
 # TODO: duplicates the class time in timedata.
 
-def setattrs(x, **kwds):
+def setattrs(_x, **kwds):
     for k, v in kwds.items():
-        setattr(x, k, v)
+        setattr(_x, k, v)
 
 
 cdef class _Wrapper:

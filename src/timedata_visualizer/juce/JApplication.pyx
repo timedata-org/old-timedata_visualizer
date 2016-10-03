@@ -1,5 +1,5 @@
 import ctypes, functools, multiprocessing, multiprocessing.sharedctypes
-import queue, time, threading, traceback
+import queue, time, threading, traceback, weakref
 
 ctypedef void (*StringCaller)(string)
 
@@ -24,6 +24,8 @@ def _juce_process(*args):
 
 class JuceApplication(object):
     def __init__(self, size):
+        self.running = True
+        self.proxies = weakref.WeakSet()
         ctx = multiprocessing.get_context('spawn')
 
         send = ctx.Queue()
@@ -36,15 +38,23 @@ class JuceApplication(object):
 
         self._send, self._receive, self.memory = send, receive, memory
 
+    def __del__(self):
+        quit()
+
     def send(self, token, method, *args, **kwds):
         self._send.put((token, method, args, kwds))
-        return self._receive.get()
+        return token or self._receive.get()
 
     def proxy(self, cls, *args, **kwds):
-        return Proxy(self, cls, *args, **kwds)
+        p = Proxy(self, cls, *args, **kwds)
+        self.proxies.add(p)
 
     def quit(self):
-        self.send(None, quit_juce_application)
+        if self.running:
+            self.running = False
+            for p in self.proxies:
+                p._running = False
+            self.send(None, quit_juce_application)
 
     @classmethod
     def register(cls, proxy_class):

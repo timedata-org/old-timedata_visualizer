@@ -18,12 +18,12 @@ class ApplicationBase : public juce::JUCEApplicationBase {
     bool moreThanOneInstanceAllowed() override { return true; }
 
     void initialise(const String&) override {
-        std::cerr << "initialise\n";
+        // std::cerr << "initialise\n";
         globalCallback()("{\"event\":\"start\"}");
     }
 
     void systemRequestedQuit() override {
-        std::cerr << "systemRequestedQuit\n";
+        //std::cerr << "systemRequestedQuit\n";
         quit();
     }
 
@@ -36,7 +36,7 @@ class ApplicationBase : public juce::JUCEApplicationBase {
 };
 
 inline juce::JUCEApplicationBase* juce_CreateApplication() {
-    std::cerr << "juce_CreateApplication\n";
+    // std::cerr << "juce_CreateApplication\n";
     return new ApplicationBase();
 }
 
@@ -44,9 +44,9 @@ inline void startJuceApplication(StringCaller cb) {
     globalCallback() = cb;
     juce::JUCEApplicationBase::createInstance = &juce_CreateApplication;
     static const char* argv[] = {"timedata_visualizer"};
-    std::cerr << "main\n";
+    // std::cerr << "main\n";
     juce::JUCEApplicationBase::main(1, argv);
-    std::cerr << "main done!\n";
+    // std::cerr << "main done!\n";
 }
 
 inline void callTimedata(std::string const& s) {

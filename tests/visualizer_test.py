@@ -3,7 +3,7 @@ import random, time, unittest
 import timedata_visualizer
 
 LOOPS = 20
-#WIDTH, HEIGHT = 128, 96
+# WIDTH, HEIGHT = 128, 96
 WIDTH, HEIGHT = 16, 16
 SIZE = (WIDTH * HEIGHT) * 3
 
@@ -29,8 +29,9 @@ def start_and_stop():
         app.memory[:] = FRAMES[base]
         base = (base + 1) % len(FRAMES)
         window.repaint()
-        # print('iteration', base)
+        #print('iteration', base)
         i += 1
+        time.sleep(0.003)
         if not (i % LOOPS):
             next_time = time.time()
             if FRAME_RATE:

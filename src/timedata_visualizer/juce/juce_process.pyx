@@ -41,8 +41,10 @@ class ProcessGlobal(object):
             try:
                 msg = method(token and self.objects[token], *args, **kwds)
             except Exception as e:
-                msg = 'Exception %s for "%s"' % (e, (token, method, args, kwds))
-            self.receive.put(msg)
+                print('Exception %s for "%s"' % (e, (token, method, args, kwds)))
+                msg = None
+            if msg:
+                self.receive.put(msg)
 
 
 _PROCESS = ProcessGlobal()

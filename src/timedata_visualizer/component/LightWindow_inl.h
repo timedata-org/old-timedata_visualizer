@@ -16,6 +16,7 @@ struct LightWindow::Impl : DocumentWindow {
         setVisible(true);
         setSize(128, 96);
         setResizable(true, false);
+        setResizeLimits(32, 8, 10240, 10240);
     }
 
     void setDesc(LightWindowDesc desc) {

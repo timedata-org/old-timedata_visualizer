@@ -14,6 +14,7 @@ inline void LightComponent::paint(Graphics& g) {
     auto htile = bounds.getHeight() / height_;
     auto tile = Rectangle<float>(wtile, htile);
     auto instrument = tile.reduced(desc_.instrumentPadding);
+    instrument.setPosition(bounds.getPosition());
     auto relative = instrument;
     auto bp = bufferPointer_;
 
