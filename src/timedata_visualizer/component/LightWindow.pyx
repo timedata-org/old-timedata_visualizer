@@ -38,5 +38,6 @@ cdef class _LightWindow:
     cpdef void write_snapshot_to_file(self, string name):
         self.cdata.writeSnapshotToFile(name)
 
-    cpdef size_t offset(self):
+    @returns
+    def offset(self):
         return self._offset

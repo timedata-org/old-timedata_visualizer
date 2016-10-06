@@ -56,7 +56,8 @@ class JuceApplication(object):
 
     def send(self, token, method, *args, **kwds):
         self._send.put((token, method, args, kwds))
-        return token or self._receive.get()
+        if has_return(token, method):
+            return self._receive.get()
 
     def proxy(self, cls, *args, **kwds):
         p = Proxy(self, cls, *args, **kwds)

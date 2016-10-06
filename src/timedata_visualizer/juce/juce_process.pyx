@@ -43,13 +43,10 @@ class ProcessGlobal(object):
             except Exception as e:
                 msg = ('Exception %s for "%s"' % (
                     e, (token, method, args, kwds)))
-                if token:
+                if not has_return(token, method):
+                    # TODO: report errors back at the source.
                     print(msg)
-                    msg = None
-            if msg:
-                # TODO: we need a better way to distinguish messages that have a
-                # value from messages that don't, and we need a better way to
-                # return errors.
+            if has_return(token, method):
                 self.receive.put(msg)
 
 

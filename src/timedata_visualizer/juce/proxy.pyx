@@ -20,7 +20,7 @@ class Proxy(object):
                 app = app_ref()
                 if not app:
                     raise ValueError('Main application has already quit')
-                app.send(token, method, *a, **k)
+                return app.send(token, method, *a, **k)
             return remote
 
         for name, method in proxy_class.__dict__.items():

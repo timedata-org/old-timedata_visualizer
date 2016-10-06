@@ -5,6 +5,7 @@
 
 include "src/timedata_visualizer/base/stl.pyx"
 include "src/timedata_visualizer/base/base.pyx"
+include "src/timedata_visualizer/base/has_return.pyx"
 include "src/timedata_visualizer/base/timestamp.pyx"
 include "src/timedata_visualizer/base/wrapper.pyx"
 include "src/timedata_visualizer/juce/juce_process.pyx"
