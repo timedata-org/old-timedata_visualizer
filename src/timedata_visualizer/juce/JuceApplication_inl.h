@@ -1,4 +1,4 @@
-#include <timedata_visualizer/juce/JApplication.h>
+#include <timedata_visualizer/juce/JuceApplication.h>
 
 namespace timedata {
 

@@ -3,7 +3,7 @@ import queue, time, threading, traceback, weakref
 
 ctypedef void (*StringCaller)(string)
 
-cdef extern from "<timedata_visualizer/juce/JApplication_inl.h>" namespace "timedata":
+cdef extern from "<timedata_visualizer/juce/JuceApplication_inl.h>" namespace "timedata":
     void startJuceApplication(StringCaller cb) nogil
 
 
