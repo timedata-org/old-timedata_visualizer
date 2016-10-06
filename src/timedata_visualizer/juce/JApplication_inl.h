@@ -11,7 +11,7 @@ inline void quitJuceApplication() {
     MessageManager::callAsync(JUCEApplicationBase::quit);
 }
 
-class ApplicationBase : public juce::JUCEApplicationBase {
+class ApplicationBase final : public juce::JUCEApplicationBase {
   public:
     const String getApplicationName() override { return "timedata_visualizer"; }
     const String getApplicationVersion() override { return "0.0"; }

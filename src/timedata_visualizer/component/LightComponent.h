@@ -3,7 +3,7 @@
 
 namespace timedata {
 
-class LightComponent : public Component {
+class LightComponent final : public Component {
   public:
     // The MessageManagerQueue must be locked for all methods.
     LightComponent() = default;

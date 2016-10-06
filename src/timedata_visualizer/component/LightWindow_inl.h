@@ -6,7 +6,7 @@
 
 namespace timedata {
 
-struct LightWindow::Impl : DocumentWindow {
+struct LightWindow::Impl final : DocumentWindow {
     LightComponent comp;
 
     Impl() : DocumentWindow("(not set)", Colours::black, allButtons) {
