@@ -29,11 +29,8 @@ cdef class _LightWindow:
         self.cdata.repaint()
 
     cpdef void reset(self):
-        print('_LightWindow: reset')
         self.cdata.reset()
-        print('_LightWindow: reset done')
         _PROCESS.remove_object(self)
-        print('_LightWindow: remove object done')
 
     cpdef void set_desc(self, _LightWindowDesc desc):
         self.cdata.setDesc(desc.cdata)

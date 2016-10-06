@@ -8,6 +8,8 @@ class Proxy(object):
     def __init__(self, app, proxy_class, *args, **kwds):
         # Get a token from the other side.
         token = app.send(None, _add_proxy, proxy_class, *args, **kwds)
+        if isinstance(token, str):
+            raise ValueError(token)
 
         # Now add a proxy method for each method in the original class.
         app_ref = weakref.ref(app)
@@ -40,9 +42,7 @@ class Proxy(object):
         self.set_desc = set_desc
 
     def __del__(self):
-        print('starting to reset proxy...')
         try:
             self.reset()
         except:
             pass
-        print('reset proxy done.')

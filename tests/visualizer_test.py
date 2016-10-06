@@ -8,6 +8,7 @@ WIDTH, HEIGHT = 16, 16
 SIZE = (WIDTH * HEIGHT) * 3
 
 FRAME_RATE = not False
+ITERATIONS = 1000
 
 def start_and_stop():
     print('SIZE=', SIZE)
@@ -25,7 +26,7 @@ def start_and_stop():
     i = 0
     last_time = time.time()
     FRAMES = [bytearray(random.randrange(256) for i in range(SIZE)) for j in range(8)]
-    while True:
+    for j in range(ITERATIONS):
         app.memory[:] = FRAMES[base]
         base = (base + 1) % len(FRAMES)
         window.repaint()
@@ -39,7 +40,6 @@ def start_and_stop():
             last_time = next_time
 
 
-    time.sleep(100)
     # works fine without this, but want to make sure it stays up.
     app.quit()
 

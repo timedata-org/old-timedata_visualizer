@@ -1,4 +1,4 @@
-import ctypes, functools, multiprocessing, multiprocessing.sharedctypes
+import atexit, ctypes, functools, multiprocessing, multiprocessing.sharedctypes
 import queue, time, threading, traceback, weakref
 
 ctypedef void (*StringCaller)(string)
@@ -23,7 +23,10 @@ def _juce_process(*args):
 
 
 class JuceApplication(object):
+    INSTANCES = weakref.WeakSet()
+
     def __init__(self, size):
+        self.INSTANCES.add(self)
         self.running = True
         self.proxies = weakref.WeakSet()
         ctx = multiprocessing.get_context('spawn')
@@ -46,6 +49,11 @@ class JuceApplication(object):
         except:
             pass
 
+    @classmethod
+    def quit_all(cls):
+        for i in cls.INSTANCES:
+            i.quit()
+
     def send(self, token, method, *args, **kwds):
         self._send.put((token, method, args, kwds))
         return token or self._receive.get()
@@ -58,14 +66,10 @@ class JuceApplication(object):
         if self.running:
             self.running = False
             try:
-                print('starting to quit JUCE')
                 self.send(True, quit_juce_application)
-                print('finished quitting JUCE')
             except:
                 pass
-            print('starting to terminate')
             self.process.terminate()
-            print('terminated')
 
     @classmethod
     def register(cls, proxy_class):
@@ -76,4 +80,6 @@ class JuceApplication(object):
             name = name[1:]
         setattr(cls, name, method)
 
+
 JuceApplication.register(_LightWindow)
+atexit.register(JuceApplication.quit_all)

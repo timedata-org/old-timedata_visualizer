@@ -41,9 +41,15 @@ class ProcessGlobal(object):
             try:
                 msg = method(token and self.objects[token], *args, **kwds)
             except Exception as e:
-                print('Exception %s for "%s"' % (e, (token, method, args, kwds)))
-                msg = None
+                msg = ('Exception %s for "%s"' % (
+                    e, (token, method, args, kwds)))
+                if token:
+                    print(msg)
+                    msg = None
             if msg:
+                # TODO: we need a better way to distinguish messages that have a
+                # value from messages that don't, and we need a better way to
+                # return errors.
                 self.receive.put(msg)
 
 
