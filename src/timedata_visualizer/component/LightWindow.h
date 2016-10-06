@@ -21,6 +21,7 @@ class LightWindow {
     void writeSnapshotToFile(std::string const& filename);
 
     void repaint();
+    void reset();
     BufferPointer bufferPointer();
 
   private:

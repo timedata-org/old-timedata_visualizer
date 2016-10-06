@@ -37,6 +37,10 @@ inline LightWindow::LightWindow() {
 }
 
 inline LightWindow::~LightWindow() {
+    reset();
+}
+
+inline void LightWindow::reset() {
     MessageManagerLock mml;
     impl_.reset();
 }

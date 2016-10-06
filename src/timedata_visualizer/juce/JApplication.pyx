@@ -32,14 +32,19 @@ class JuceApplication(object):
         receive = ctx.Queue()
         memory = multiprocessing.sharedctypes.RawArray(ctypes.c_uint8, size)
 
-        ctx.Process(target=_juce_process, args=(send, receive, memory)).start()
+        self.process = ctx.Process(target=_juce_process,
+                                   args=(send, receive, memory))
+        self.process.start()
         result = receive.get()
         assert result == b'{"event":"start"}', str(result)
 
         self._send, self._receive, self.memory = send, receive, memory
 
     def __del__(self):
-        quit()
+        try:
+            self.quit()
+        except:
+            pass
 
     def send(self, token, method, *args, **kwds):
         self._send.put((token, method, args, kwds))
@@ -52,9 +57,15 @@ class JuceApplication(object):
     def quit(self):
         if self.running:
             self.running = False
-            for p in self.proxies:
-                p._running = False
-            self.send(None, quit_juce_application)
+            try:
+                print('starting to quit JUCE')
+                self.send(True, quit_juce_application)
+                print('finished quitting JUCE')
+            except:
+                pass
+            print('starting to terminate')
+            self.process.terminate()
+            print('terminated')
 
     @classmethod
     def register(cls, proxy_class):

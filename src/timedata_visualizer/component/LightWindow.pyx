@@ -3,6 +3,8 @@ import ctypes, multiprocessing.sharedctypes
 cdef extern from "timedata_visualizer/component/LightWindow_inl.h" namespace "timedata":
     cdef cppclass LightWindow:
         LightWindow()
+
+        void reset()
         void setDesc(LightWindowDesc)
         void setLights(size_t width, size_t height, uint64_t memory);
         void writeSnapshotToFile(string filename)
@@ -25,6 +27,13 @@ cdef class _LightWindow:
 
     cpdef void repaint(self):
         self.cdata.repaint()
+
+    cpdef void reset(self):
+        print('_LightWindow: reset')
+        self.cdata.reset()
+        print('_LightWindow: reset done')
+        _PROCESS.remove_object(self)
+        print('_LightWindow: remove object done')
 
     cpdef void set_desc(self, _LightWindowDesc desc):
         self.cdata.setDesc(desc.cdata)

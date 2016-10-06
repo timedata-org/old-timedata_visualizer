@@ -28,7 +28,7 @@ class ProcessGlobal(object):
        return self.token
 
     def remove_object(self, o):
-        for k, v in self.objects:
+        for k, v in self.objects.items():
             if v is o:
                 del self.objects[k]
                 return
