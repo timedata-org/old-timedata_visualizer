@@ -7,14 +7,14 @@ def _add_proxy(_, cls, *args, **kwds):
 class Proxy(object):
     def __init__(self, app, proxy_class, *args, **kwds):
         # Get a token from the other side.
-        token = app.send(None, _add_proxy, proxy_class, *args, **kwds)
-        if isinstance(token, str):
-            raise ValueError(token)
+        self.token = app.send(None, _add_proxy, proxy_class, *args, **kwds)
+        if isinstance(self.token, str):
+            raise ValueError(self.token)
 
         def proxy(method):
             @functools.wraps(method)
             def remote(*a, **k):
-                return app.send(token, method, *a, **k)
+                return app.send(self.token, method, *a, **k)
             return remote
 
         for name, method in proxy_class.__dict__.items():

@@ -28,6 +28,7 @@ class JuceApplication(object):
     def __init__(self, size):
         self.INSTANCES.add(self)
         self.running = True
+        self.proxies = weakref.WeakValueDictionary()
         ctx = multiprocessing.get_context('spawn')
 
         send = ctx.Queue()
@@ -70,9 +71,12 @@ class JuceApplication(object):
     @classmethod
     def register(cls, proxy_class):
         def method(self, *args, **kwds):
-            return Proxy(self, proxy_class, *args, **kwds)
+            proxy = Proxy(self, proxy_class, *args, **kwds)
+            self.proxies[proxy.token] = proxy
+            return proxy
+
         name = proxy_class.__name__
-        while name.startswith('_'):
+        if name.startswith('_'):
             name = name[1:]
         setattr(cls, name, method)
 
