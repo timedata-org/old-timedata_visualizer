@@ -36,8 +36,8 @@ class ProcessGlobal(object):
         else:
             raise ValueError('%s is not an saved object' % o)
 
-    def event(self, *args, token=None, **kwds):
-        self.events.put((token, args, kwds))
+    def event(self, event, data, token=None):
+        self.events.put((event, data, token))
 
     def _run(self):
         while True:

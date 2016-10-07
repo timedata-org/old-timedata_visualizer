@@ -23,15 +23,15 @@ class Proxy(object):
 
         # We pretty up the interface of self.set_desc so we don't have to set
         # all the values in the description class, every time.
-        desc = proxy_class.DESC()
+        self._desc = proxy_class.DESC()
         proxy_set_desc = self.set_desc
 
         @functools.wraps(proxy_set_desc)
         def set_desc(**kwds):
             if kwds:
-                setattrs(desc, **kwds)
-                proxy_set_desc(desc)
-            return desc
+                setattrs(self._desc, **kwds)
+                proxy_set_desc(self._desc)
+            return self._desc
 
         self.set_desc = set_desc
 

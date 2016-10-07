@@ -3,8 +3,9 @@
 #
 # See http://docs.cython.org/en/latest/src/reference/compilation.html
 
-include "src/timedata_visualizer/base/stl.pyx"
 include "src/timedata_visualizer/base/base.pyx"
+include "src/timedata_visualizer/base/callbacks.pyx"
+include "src/timedata_visualizer/base/stl.pyx"
 include "src/timedata_visualizer/base/has_return.pyx"
 include "src/timedata_visualizer/base/timestamp.pyx"
 include "src/timedata_visualizer/base/wrapper.pyx"

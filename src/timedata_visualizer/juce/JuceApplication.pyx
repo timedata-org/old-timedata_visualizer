@@ -37,6 +37,8 @@ class JuceApplication(object):
 
         memory = multiprocessing.sharedctypes.RawArray(ctypes.c_uint8, size)
 
+        self._send, self._receive, self._events, self.memory = (
+            send, receive, events, memory)
         threading.Thread(target=self._handle_events, daemon=True).start()
 
         self.process = ctx.Process(target=_juce_process,
@@ -45,10 +47,20 @@ class JuceApplication(object):
         result = receive.get()
         assert result == b'{"event":"start"}', str(result)
 
-        self._send, self._receive, self.memory = send, receive, memory
 
     def _handle_events(self):
-        pass
+        while True:
+            event, data, token = self._events.get()
+            if not token:
+                call_callbacks(self, event)
+            else:
+                item = self.proxies.get(token)
+                if not item:
+                    print('Got an event for a missing token', token)
+                elif event == 'desc':
+                    item._desc = data
+                else:
+                    call_callbacks(item, (event, data))
 
     def __del__(self):
         try:
