@@ -1,4 +1,4 @@
-import copy, functools, weakref
+import copy, functools
 
 def _add_proxy(_, cls, *args, **kwds):
     return _PROCESS.add_object(cls(*args, **kwds))
@@ -11,15 +11,9 @@ class Proxy(object):
         if isinstance(token, str):
             raise ValueError(token)
 
-        # Now add a proxy method for each method in the original class.
-        app_ref = weakref.ref(app)
-
         def proxy(method):
             @functools.wraps(method)
             def remote(*a, **k):
-                app = app_ref()
-                if not app:
-                    raise ValueError('Main application has already quit')
                 return app.send(token, method, *a, **k)
             return remote
 

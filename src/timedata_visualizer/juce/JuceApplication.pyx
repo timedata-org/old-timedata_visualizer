@@ -28,7 +28,6 @@ class JuceApplication(object):
     def __init__(self, size):
         self.INSTANCES.add(self)
         self.running = True
-        self.proxies = weakref.WeakSet()
         ctx = multiprocessing.get_context('spawn')
 
         send = ctx.Queue()
@@ -52,16 +51,12 @@ class JuceApplication(object):
     @classmethod
     def quit_all(cls):
         for i in cls.INSTANCES:
-            i.quit()
+            i.__del__()
 
     def send(self, token, method, *args, **kwds):
         self._send.put((token, method, args, kwds))
         if has_return(token, method):
             return self._receive.get()
-
-    def proxy(self, cls, *args, **kwds):
-        p = Proxy(self, cls, *args, **kwds)
-        self.proxies.add(p)
 
     def quit(self):
         if self.running:
