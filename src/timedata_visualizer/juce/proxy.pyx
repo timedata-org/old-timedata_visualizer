@@ -35,6 +35,9 @@ class Proxy(object):
 
         self.set_desc = set_desc
 
+    def get_desc(self):
+        return self._desc
+
     def __del__(self):
         try:
             self.reset()

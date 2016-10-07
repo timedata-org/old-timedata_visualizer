@@ -23,6 +23,7 @@ class LightWindow {
     void repaint();
     void reset();
     BufferPointer bufferPointer();
+    LightWindowDesc getDesc() const;
 
   private:
     struct Impl;

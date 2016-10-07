@@ -14,6 +14,9 @@ class LightComponent final : public Component {
     void paint(Graphics& g) override;
     BufferPointer bufferPointer() { return bufferPointer_; }
 
+    LightWindowDesc getDesc() const { return desc_; }
+    LightWindowDesc& getDesc() { return desc_; }
+
   private:
     size_t width_, height_;
     LightWindowDesc desc_ = {};

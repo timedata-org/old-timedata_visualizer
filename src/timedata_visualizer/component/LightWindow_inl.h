@@ -9,6 +9,10 @@ namespace timedata {
 struct LightWindow::Impl final : DocumentWindow {
     LightComponent comp;
 
+    void* object = {};
+    MethodCaller descCallback = {};
+    StringMethodCaller stringCallback = {};
+
     Impl() : DocumentWindow("(not set)", Colours::black, allButtons) {
         setContentNonOwned(&comp, false);
         setUsingNativeTitleBar(true);
@@ -25,9 +29,36 @@ struct LightWindow::Impl final : DocumentWindow {
         comp.setDesc(desc);
     }
 
+    void setCallbacks(void* obj, MethodCaller dc, StringMethodCaller sc) {
+        object = obj;
+        descCallback = dc;
+        stringCallback = sc;
+    }
+
     void closeButtonPressed() override {
-        // TODO - send a message.
-        JUCEApplication::getInstance()->systemRequestedQuit();
+        if (object and stringCallback)
+            stringCallback(object, "close");
+    }
+
+    void resized() override {
+        DocumentWindow::resized();
+        updateDimensions();
+    }
+
+    void moved() override {
+        DocumentWindow::moved();
+        updateDimensions();
+    }
+
+    void updateDimensions() {
+        auto bounds = getBounds();
+        auto& desc = comp.getDesc();
+        desc.x = bounds.getX();
+        desc.y = bounds.getY();
+        desc.width = bounds.getWidth();
+        desc.height = bounds.getHeight();
+        if (descCallback)
+            descCallback(object);
     }
 };
 
@@ -48,6 +79,11 @@ inline void LightWindow::reset() {
 inline void LightWindow::setDesc(LightWindowDesc desc) {
     MessageManagerLock mml;
     impl_->setDesc(desc);
+}
+
+inline LightWindowDesc LightWindow::getDesc() const {
+    MessageManagerLock mml;
+    return impl_->comp.getDesc();
 }
 
 inline void LightWindow::setLights(
