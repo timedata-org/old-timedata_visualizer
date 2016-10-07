@@ -33,15 +33,22 @@ class JuceApplication(object):
 
         send = ctx.Queue()
         receive = ctx.Queue()
+        events = ctx.Queue()
+
         memory = multiprocessing.sharedctypes.RawArray(ctypes.c_uint8, size)
 
+        threading.Thread(target=self._handle_events, daemon=True).start()
+
         self.process = ctx.Process(target=_juce_process,
-                                   args=(send, receive, memory))
+                                   args=(send, receive, events, memory))
         self.process.start()
         result = receive.get()
         assert result == b'{"event":"start"}', str(result)
 
         self._send, self._receive, self.memory = send, receive, memory
+
+    def _handle_events(self):
+        pass
 
     def __del__(self):
         try:

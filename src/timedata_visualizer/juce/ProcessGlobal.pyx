@@ -2,9 +2,10 @@ class ProcessGlobal(object):
     """This class is a singleton whose values are assigned in each subprocess.
     """
 
-    def start(self, send, receive, memory):
+    def start(self, send, receive, events, memory):
         self.send = send
         self.receive = receive
+        self.events = events
         self.memory = memory
 
         self.allocated = 0
@@ -35,6 +36,9 @@ class ProcessGlobal(object):
         else:
             raise ValueError('%s is not an saved object' % o)
 
+    def event(self, *args, token=None, **kwds):
+        self.events.put((token, args, kwds))
+
     def _run(self):
         while True:
             token, method, args, kwds = self.send.get()
@@ -48,6 +52,7 @@ class ProcessGlobal(object):
                     print(msg)
             if has_return(token, method):
                 self.receive.put(msg)
+
 
 
 _PROCESS = ProcessGlobal()
