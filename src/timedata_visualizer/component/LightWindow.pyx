@@ -17,10 +17,22 @@ cdef class _LightWindow:
     DESC = _LightWindowDesc
 
     cdef LightWindow cdata
+    cdef _LightWindowDesc desc
     cdef size_t _offset
+    cdef size_t token
 
     def __init__(self, size_t width, size_t height):
         self.reallocate(width, height)
+        self.cdata.setCallback(<Function> self._receive_from_cpp)
+        self.token = 0
+
+    cpdef void set_token(self, size_t token):
+        print('set_token', token)
+        self.token = token
+
+    def _receive_from_cpp(self, event):
+        print('_receive_from_cpp', event)
+        _PROCESS.event(event, self.desc, self.token)
 
     cpdef void reallocate(self, size_t width, size_t height):
         cdef size_t size = 3 * width * height
@@ -35,6 +47,7 @@ cdef class _LightWindow:
         _PROCESS.remove_object(self)
 
     cpdef void set_desc(self, _LightWindowDesc desc):
+        self.desc.cdata = desc.cdata
         self.cdata.setDesc(desc.cdata)
 
     cpdef void write_snapshot_to_file(self, string name):

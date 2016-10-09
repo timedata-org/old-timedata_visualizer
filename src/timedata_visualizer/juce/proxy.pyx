@@ -1,8 +1,5 @@
 import copy, functools
 
-def _add_proxy(_, cls, *args, **kwds):
-    return _PROCESS.add_object(cls(*args, **kwds))
-
 
 class Proxy(object):
     def __init__(self, app, proxy_class, *args, **kwds):

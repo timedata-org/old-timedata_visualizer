@@ -7,6 +7,10 @@ cdef extern from "<timedata_visualizer/juce/JuceApplication_inl.h>" namespace "t
     void startJuceApplication(StringCaller cb) nogil
 
 
+cdef void _send_from_juce(string s) with gil:
+    _PROCESS.receive.put(s)
+
+
 cpdef void start_juce_application():
     # This must be run on the main thread.  You can run it in a multiprocess,
     # but you must have started it with 'spawn'.
@@ -101,4 +105,5 @@ class JuceApplication(object):
 
 
 JuceApplication.register(_LightWindow)
+
 atexit.register(JuceApplication.quit_all)

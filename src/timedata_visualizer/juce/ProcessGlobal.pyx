@@ -13,7 +13,7 @@ class ProcessGlobal(object):
 
         self.objects = {}
         self.token = 0
-        threading.Thread(target=self._run, daemon=True).start()
+        threading.Thread(target=self._handle_incoming, daemon=True).start()
 
     def allocate(self, size):
         result = self.allocated
@@ -26,6 +26,7 @@ class ProcessGlobal(object):
     def add_object(self, o):
        self.token += 1
        self.objects[self.token] = o
+       o.set_token(self.token)
        return self.token
 
     def remove_object(self, o):
@@ -39,11 +40,15 @@ class ProcessGlobal(object):
     def event(self, event, data, token=None):
         self.events.put((event, data, token))
 
-    def _run(self):
+    def _handle_incoming(self):
         while True:
             token, method, args, kwds = self.send.get()
             try:
-                msg = method(token and self.objects[token], *args, **kwds)
+                if token:
+                    msg = method(self.objects[token], *args, **kwds)
+                else:
+                    assert method is _add_proxy
+                    msg = method(*args, **kwds)
             except Exception as e:
                 msg = ('Exception %s for "%s"' % (
                     e, (token, method, args, kwds)))
@@ -54,9 +59,8 @@ class ProcessGlobal(object):
                 self.receive.put(msg)
 
 
-
 _PROCESS = ProcessGlobal()
 
-
-cdef void _send_from_juce(string s) with gil:
-    _PROCESS.receive.put(s)
+def _add_proxy(proxy_class, *args, **kwds):
+    # Must be top-level so it can be passed to another process.
+    return _PROCESS.add_object(proxy_class(*args, **kwds))
