@@ -1,7 +1,7 @@
 import atexit, ctypes, functools, multiprocessing, multiprocessing.sharedctypes
 import queue, time, threading, traceback, weakref
 
-ctypedef void (*StringCaller)(string)
+ctypedef void (*StringCaller)(string data)
 
 cdef extern from "<timedata_visualizer/juce/JuceApplication_inl.h>" namespace "timedata":
     void startJuceApplication(StringCaller cb) nogil

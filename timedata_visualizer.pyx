@@ -10,6 +10,7 @@ include "src/timedata_visualizer/base/has_return.pyx"
 include "src/timedata_visualizer/base/timestamp.pyx"
 include "src/timedata_visualizer/base/wrapper.pyx"
 include "src/timedata_visualizer/juce/ProcessGlobal.pyx"
+include "src/timedata_visualizer/juce/CallPython.pyx"
 include "src/timedata_visualizer/juce/commands.pyx"
 
 include "build/genfiles/timedata_visualizer/genfiles.pyx"

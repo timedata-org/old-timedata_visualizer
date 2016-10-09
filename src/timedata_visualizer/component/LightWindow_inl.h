@@ -7,11 +7,8 @@
 namespace timedata {
 
 struct LightWindow::Impl final : DocumentWindow {
-    LightComponent comp;
-
-    void* object = {};
-    MethodCaller descCallback = {};
-    StringMethodCaller stringCallback = {};
+    LightComponent comp = {};
+    Function stringCallback = {};
 
     Impl() : DocumentWindow("(not set)", Colours::black, allButtons) {
         setContentNonOwned(&comp, false);
@@ -29,15 +26,8 @@ struct LightWindow::Impl final : DocumentWindow {
         comp.setDesc(desc);
     }
 
-    void setCallbacks(void* obj, MethodCaller dc, StringMethodCaller sc) {
-        object = obj;
-        descCallback = dc;
-        stringCallback = sc;
-    }
-
     void closeButtonPressed() override {
-        if (object and stringCallback)
-            stringCallback(object, "close");
+        callPython(stringCallback, "close");
     }
 
     void resized() override {
@@ -57,8 +47,8 @@ struct LightWindow::Impl final : DocumentWindow {
         desc.y = bounds.getY();
         desc.width = bounds.getWidth();
         desc.height = bounds.getHeight();
-        if (descCallback)
-            descCallback(object);
+
+        callPython(stringCallback, "dimensions");
     }
 };
 
@@ -94,6 +84,11 @@ inline void LightWindow::setLights(
 
 inline void LightWindow::setLights(size_t width, size_t height, uint64_t bp) {
     setLights(width, height, reinterpret_cast<BufferPointer>(bp));
+}
+
+inline void LightWindow::setCallback(Function stringCallback) {
+    MessageManagerLock mml;
+    impl_->stringCallback = stringCallback;
 }
 
 void LightWindow::writeSnapshotToFile(std::string const& filename) {

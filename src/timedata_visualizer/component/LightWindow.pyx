@@ -10,6 +10,7 @@ cdef extern from "timedata_visualizer/component/LightWindow_inl.h" namespace "ti
         void setLights(size_t width, size_t height, uint64_t memory);
         void writeSnapshotToFile(string filename)
         void repaint()
+        void setCallback(Function stringCallback)
 
 
 cdef class _LightWindow:
