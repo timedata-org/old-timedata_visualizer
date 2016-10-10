@@ -1,3 +1,5 @@
+RETHROW = False
+
 class ProcessGlobal(object):
     """This class is a singleton whose values are assigned in each subprocess.
     """
@@ -50,6 +52,8 @@ class ProcessGlobal(object):
                     assert method is _add_proxy
                     msg = method(*args, **kwds)
             except Exception as e:
+                if RETHROW:
+                    raise
                 msg = ('Exception %s for "%s"' % (
                     e, (token, method, args, kwds)))
                 if not has_return(token, method):

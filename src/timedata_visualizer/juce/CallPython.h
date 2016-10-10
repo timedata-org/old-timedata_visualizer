@@ -5,7 +5,7 @@
 namespace timedata {
 
 /** We have to pass Python function pointers in and out of C++ as void*. */
-using Function = void*;
+using Function = uint64_t;
 
 typedef void (*FunctionCaller) (Function);
 typedef void (*StringFunctionCaller) (Function, std::string);

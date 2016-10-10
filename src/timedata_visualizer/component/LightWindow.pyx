@@ -1,5 +1,6 @@
 import ctypes, multiprocessing.sharedctypes
 
+
 cdef extern from "timedata_visualizer/component/LightWindow_inl.h" namespace "timedata":
     cdef cppclass LightWindow:
         LightWindow()
@@ -23,11 +24,11 @@ cdef class _LightWindow:
 
     def __init__(self, size_t width, size_t height):
         self.reallocate(width, height)
-        self.cdata.setCallback(<Function> self._receive_from_cpp)
+        #self.cdata.setCallback(<uint64_t> self._receive_from_cpp)
         self.token = 0
 
     cpdef void set_token(self, size_t token):
-        print('set_token', token)
+        # print('set_token', token)
         self.token = token
 
     def _receive_from_cpp(self, event):
