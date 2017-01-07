@@ -3,6 +3,8 @@
 
 namespace timedata {
 
+static const auto PRINT_FRAMERATE_EVERY = 1000;
+
 inline void LightComponent::paint(Graphics& g) {
     g.fillAll(Colours::black);
 
@@ -42,6 +44,19 @@ inline void LightComponent::paint(Graphics& g) {
             }
         }
     }
+
+    auto now = Time::getCurrentTime();
+    if (not frameCount_) {
+        startTime_ = now;
+    } else if (auto rate = desc_.frameRatePrintRate) {
+        if (frameCount_ % rate) {
+            auto elapsed = (now - startTime_).inSeconds();
+            std::cout << "Frame rate: "
+                      << rate << ' '
+                      << frameCount_ / elapsed << '\n';
+        }
+    }
+    frameCount_++;
 }
 
 inline void LightComponent::setDesc(LightWindowDesc d) {

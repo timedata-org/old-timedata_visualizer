@@ -7,20 +7,19 @@ LOOPS = 20
 WIDTH, HEIGHT = 16, 16
 SIZE = (WIDTH * HEIGHT) * 3
 
-FRAME_RATE = not False
+FRAME_RATE_PRINT_RATE = 0
 ITERATIONS = 1000
 
 def start_and_stop():
-    print('SIZE=', SIZE)
     app = timedata_visualizer.JuceApplication(SIZE)
     window = app.LightWindow(WIDTH, HEIGHT)
     window.set_desc(
         width=1280,
         height=960,
         instrumentPadding=2,
+        frameRatePrintRate=FRAME_RATE_PRINT_RATE,
         #shape='ellipse',
         )
-    print('LENGTH=', len(app.memory))
 
     base = 0
     i = 0
@@ -35,8 +34,6 @@ def start_and_stop():
         time.sleep(0.003)
         if not (i % LOOPS):
             next_time = time.time()
-            if FRAME_RATE:
-                print('frame rate:', LOOPS / (next_time - last_time))
             last_time = next_time
 
 

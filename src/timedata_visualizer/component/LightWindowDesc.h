@@ -15,6 +15,7 @@ struct LightWindowDesc {
     int labelPadding;
 
     int x = 0, y = 0, width = 256, height = 192;
+    size_t frameRatePrintRate = 0;
 };
 
 }  // namespace timedata

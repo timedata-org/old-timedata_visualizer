@@ -22,6 +22,8 @@ class LightComponent final : public Component {
     LightWindowDesc desc_ = {};
     BufferPointer bufferPointer_;
     std::vector<uint8_t> buffer_;
+    Time startTime_;
+    uint64_t frameCount_ = 0;
 
     Mutex mutex_;
 };

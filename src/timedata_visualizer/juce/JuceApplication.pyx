@@ -90,6 +90,7 @@ class JuceApplication(object):
             except:
                 pass
             self.process.terminate()
+            self.process.join()
 
     @classmethod
     def register(cls, proxy_class):

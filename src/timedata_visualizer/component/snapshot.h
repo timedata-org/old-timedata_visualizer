@@ -45,7 +45,7 @@ inline void writeSnapshotToFile(std::string const& name, Component& c, int i) {
         std::cerr << err << " in file " << fname << '\n';
         file.deleteFile();
     } else {
-        std::cout << "Wrote snapshot to " << fname << '\n';
+        // std::cout << "Wrote snapshot to " << fname << '\n';
     }
 }
 
